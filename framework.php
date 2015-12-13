@@ -1,11 +1,11 @@
 <?php if ( ! defined( 'ABSPATH' ) ) die( 'Forbidden' );
 /**
- * Plugin Name: Unyson
- * Plugin URI: http://unyson.io/
- * Description: A free drag & drop framework that comes with a bunch of built in extensions that will help you develop premium themes fast & easy.
- * Version: 2.4.13
- * Author: ThemeFuse
- * Author URI: http://themefuse.com
+ * Plugin Name: Theme Framework
+ * Plugin URI: https://github.com/puriwp/Theme-Framework
+ * Description: Theme framework for MePro theme based on Unyson Framework.
+ * Version: 2.5.0
+ * Author: MinimalThemes
+ * Author URI: http://minimalthemes.net
  * License: GPL2+
  * Text Domain: fw
  * Domain Path: /languages/

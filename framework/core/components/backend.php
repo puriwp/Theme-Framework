@@ -66,7 +66,7 @@ final class _FW_Component_Backend {
 	 * @internal
 	 */
 	public function _get_settings_page_slug() {
-		return 'fw-settings';
+		return 'theme-options';
 	}
 
 	private function get_current_edit_taxonomy() {
@@ -135,7 +135,7 @@ final class _FW_Component_Backend {
 		}
 
 		$this->add_actions();
-		$this->add_filters();
+		//$this->add_filters();
 	}
 
 	/**
@@ -643,7 +643,7 @@ final class _FW_Component_Backend {
 			// this is needed for flash messages (admin notices) to be displayed properly
 			echo '<h2 class="fw-hidden"></h2>';
 		} else {
-			echo '<h2>' . __( 'Theme Settings', 'fw' ) . '</h2><br/>';
+			echo '<h2>' . __( 'Theme Options', 'fw' ) . '</h2><br/>';
 		}
 
 		$this->settings_form->render();

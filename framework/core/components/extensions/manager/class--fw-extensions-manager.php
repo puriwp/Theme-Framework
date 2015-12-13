@@ -124,7 +124,7 @@ final class _FW_Extensions_Manager
 
 	public function get_page_slug()
 	{
-		return 'fw-extensions';
+		return 'extensions';
 	}
 
 	private function get_cache_key($sub_key)

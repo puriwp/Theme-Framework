@@ -2,4 +2,11 @@
 
 !/framework/extensions/blog/
 !/framework/extensions/update/
-!/framework/extensions/clone-all.bash
+/framework/extensions/clone-all.bash
+/.travis.yml
+/CONTRIBUTING.md
+/readme.txt
+/README.md
+/tests/
+/framework/LICENSE
+/framework/index.html

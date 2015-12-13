@@ -2791,6 +2791,26 @@ a.fw-wp-link:hover {
 
 /* end: fadeIn */
 
+/* fwFlash */
+@-webkit-keyframes fwFlash {
+  from, 50%, to {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes fwFlash {
+  from, 50%, to {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.2;
+  }
+}
+/* end: fwFlash */
+
 /* fwReverseRotate180 */
 
 @-webkit-keyframes fwRotateReverse180 /* Safari and Chrome */ {
@@ -2842,11 +2862,11 @@ a.fw-wp-link:hover {
 }
 
 .fw-animation-rotate-reverse-180 {
-	-webkit-animation: fwRotateReverse180 2s ease infinite;
-	-moz-animation: fwRotateReverse180 2s ease infinite;
-	-ms-animation: fwRotateReverse180 2s ease infinite;
-	-o-animation: fwRotateReverse180 2s ease infinite;
-	animation: fwRotateReverse180 2s ease infinite;
+	-webkit-animation: fwFlash 1s ease infinite;
+	-moz-animation: fwFlash 1s ease infinite;
+	-ms-animation: fwFlash 1s ease infinite;
+	-o-animation: fwFlash 1s ease infinite;
+	animation: fwFlash 1s ease infinite;
 }
 
 /* end: fwReverseRotate180 */
@@ -3177,19 +3197,19 @@ body.rtl .fw-modal .media-frame-content > form .fw-options-tabs-contents .fw-opt
 }
 
 #fw-loading.opening {
-	-webkit-animation: fwGrowIn .3s ease-in-out;
-	-moz-animation: fwGrowIn .3s ease-in-out;
-	-ms-animation: fwGrowIn .3s ease-in-out;
-	-o-animation: fwGrowIn .3s ease-in-out;
-	animation: fwGrowIn .3s ease-in-out;
+	-webkit-animation: fwGrowIn .6s ease-in-out;
+	-moz-animation: fwGrowIn .6s ease-in-out;
+	-ms-animation: fwGrowIn .6s ease-in-out;
+	-o-animation: fwGrowIn .6s ease-in-out;
+	animation: fwGrowIn .6s ease-in-out;
 }
 
 #fw-loading.closing {
-	-webkit-animation: fwGrowOut .3s ease-in-out;
-	-moz-animation: fwGrowOut .3s ease-in-out;
-	-ms-animation: fwGrowOut .3s ease-in-out;
-	-o-animation: fwGrowOut .3s ease-in-out;
-	animation: fwGrowOut .3s ease-in-out;
+	-webkit-animation: fwGrowOut .6s ease-in-out;
+	-moz-animation: fwGrowOut .6s ease-in-out;
+	-ms-animation: fwGrowOut .6s ease-in-out;
+	-o-animation: fwGrowOut .6s ease-in-out;
+	animation: fwGrowOut .6s ease-in-out;
 
 	-webkit-animation-fill-mode: forwards; /* Chrome, Safari, Opera */
 	animation-fill-mode: forwards;

@@ -3,7 +3,6 @@
 }
 
 $thumbnails_uri = fw_get_framework_directory_uri( '/core/components/extensions/manager/static/img/thumbnails' );
-$github_account = 'ThemeFuse';
 
 $extensions = array(
 	'slider' => array(
@@ -14,7 +13,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/sliders.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Sliders-Extension',
+				'user_repo' => 'fauzie/Unyson-Sliders-Extension',
 			),
 		),
 	),
@@ -26,7 +25,7 @@ $extensions = array(
 		'thumbnail'   => 'about:blank',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Empty-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Empty-Extension',
 			),
 		),
 	),
@@ -38,7 +37,7 @@ $extensions = array(
 		'thumbnail'   => 'about:blank',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-PopulationMethods-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-PopulationMethods-Extension',
 			),
 		),
 	),
@@ -50,7 +49,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/styling.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Styling-Extension',
+				'user_repo' => 'puriwp/Framework-Styling',
 			),
 		),
 	),
@@ -62,7 +61,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/mega-menu.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-MegaMenu-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-MegaMenu-Extension',
 			),
 		),
 	),
@@ -74,7 +73,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/portfolio.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Portfolio-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Portfolio-Extension',
 			),
 		),
 	),
@@ -86,7 +85,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/page-builder.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-PageBuilder-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-PageBuilder-Extension',
 			),
 		),
 	),
@@ -98,7 +97,7 @@ $extensions = array(
 		'thumbnail'   => 'about:blank',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Shortcodes-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Shortcodes-Extension',
 			),
 		),
 	),
@@ -110,7 +109,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/breadcrumbs.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Breadcrumbs-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Breadcrumbs-Extension',
 			),
 		),
 	),
@@ -122,7 +121,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/seo.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-SEO-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-SEO-Extension',
 			),
 		),
 	),
@@ -134,7 +133,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/sidebars.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Sidebars-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Sidebars-Extension',
 			),
 		),
 	),
@@ -146,19 +145,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/feedback.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Feedback-Extension',
-			),
-		),
-	),
-	'backup' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Backup', 'fw' ),
-		'description' => __( 'This extension lets you set up daily, weekly or monthly backup schedule. You can choose between a full backup or a data base only backup.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/backup.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Backup-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Feedback-Extension',
 			),
 		),
 	),
@@ -170,31 +157,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/backups.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Backups-Extension',
-			),
-		),
-	),
-	'events' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Events', 'fw' ),
-		'description' => __( 'This extension adds a fully fledged Events module to your theme. It comes with built in pages that contain a calendar where events can be added.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/events.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Events-Extension',
-			),
-		),
-	),
-	'analytics' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Analytics', 'fw' ),
-		'description' => __( 'Enables the possibility to add the Google Analytics tracking code that will let you get all the analytics about visitors, page views and more.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/analytics.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Analytics-Extension',
+				'user_repo' => 'puriwp/Framework-Backup',
 			),
 		),
 	),
@@ -204,23 +167,7 @@ $extensions = array(
 		'name'        => __( 'Builder', 'fw' ),
 		'description' => '',
 		'thumbnail'   => 'about:blank',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Builder-Extension',
-			),
-		),
-	),
-	'learning' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Learning', 'fw' ),
-		'description' => __( 'This extension adds a Learning module to your theme. Using this extension you can add courses, lessons and tests for your users to take.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/learning.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Learning-Extension',
-			),
-		),
+		'download'    => array(),
 	),
 	'forms' => array(
 		'display'     => false,
@@ -230,7 +177,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/forms.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Forms-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Forms-Extension',
 			),
 		),
 	),
@@ -242,31 +189,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/mailer.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Mailer-Extension',
-			),
-		),
-	),
-	'social' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Social', 'fw' ),
-		'description' => __( 'Use this extension to configure all your social related APIs. Other extensions will use the Social extension to connect to your social accounts.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/social.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Social-Extension',
-			),
-		),
-	),
-	'translation' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Translations', 'fw' ),
-		'description' => __( 'This extension lets you translate your website in any language or even add multiple languages for your users to change at their will from the front-end.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/translation.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => $github_account . '/Unyson-Translation-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Mailer-Extension',
 			),
 		),
 	),
