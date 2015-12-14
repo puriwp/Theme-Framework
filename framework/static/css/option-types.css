@@ -101,6 +101,27 @@ body.rtl .fw-option-type-radio.fw-option-type-radio-inline > div:not(:last-child
 
 /* end: Radio amd Checkboxes inline */
 
+/* editor with icon fixes */
+
+.pb-item-type-simple.has-options > span {
+	text-transform: capitalize;
+}
+.pb-item-type-simple.has-options > img + i:before {
+	background: #fff;
+	display: inline-block;
+	padding: 2px;
+	font-size: 120%;
+	margin-left: -25px;
+}
+.pb-item-type-simple.has-options > img + i.box:before {
+	background-color: #8C8C8C;
+	color: #fff;
+	padding: 1px 5px;
+	font-size: 100%;
+}
+
+/* end: editor with icon fixes */
+
 /* modal fixes */
 
 .fw-modal .media-frame input[type=email],
