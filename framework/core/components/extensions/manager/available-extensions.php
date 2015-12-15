@@ -167,7 +167,11 @@ $extensions = array(
 		'name'        => __( 'Builder', 'fw' ),
 		'description' => '',
 		'thumbnail'   => 'about:blank',
-		'download'    => array(),
+		'download'    => array(
+			'github' => array(
+				'user_repo' => 'ThemeFuse/Unyson-Builder-Extension',
+			),
+		),
 	),
 	'forms' => array(
 		'display'     => false,
