@@ -13,7 +13,19 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/sliders.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => 'fauzie/Unyson-Sliders-Extension',
+				'user_repo' => 'puriwp/theme-slider',
+			),
+		),
+	),
+	'styling' => array(
+		'display'     => true,
+		'parent'      => null,
+		'name'        => __( 'Styling', 'fw' ),
+		'description' => __( 'This extension lets you control the website visual style. Starting from predefined styles to changing specific fonts and colors across the website.', 'fw' ),
+		'thumbnail'   => $thumbnails_uri . '/styling.jpg',
+		'download'    => array(
+			'github' => array(
+				'user_repo' => 'puriwp/Framework-Styling',
 			),
 		),
 	),
@@ -50,18 +62,6 @@ $extensions = array(
 		'download'    => array(
 			'github' => array(
 				'user_repo' => 'ThemeFuse/Unyson-PopulationMethods-Extension',
-			),
-		),
-	),
-	'styling' => array(
-		'display'     => true,
-		'parent'      => null,
-		'name'        => __( 'Styling', 'fw' ),
-		'description' => __( 'This extension lets you control the website visual style. Starting from predefined styles to changing specific fonts and colors across the website.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/styling.jpg',
-		'download'    => array(
-			'github' => array(
-				'user_repo' => 'puriwp/Framework-Styling',
 			),
 		),
 	),
@@ -169,7 +169,7 @@ $extensions = array(
 		'thumbnail'   => $thumbnails_uri . '/backups.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => 'puriwp/Framework-Backup',
+				'user_repo' => 'ThemeFuse/Unyson-Backups-Extension',
 			),
 		),
 	),
@@ -209,15 +209,15 @@ $extensions = array(
 			),
 		),
 	),
-	'translation' => array(
+	'analytics' => array(
 		'display'     => true,
 		'parent'      => null,
-		'name'        => __( 'Translations', 'fw' ),
-		'description' => __( 'This extension lets you translate your website in any language or even add multiple languages for your users to change at their will from the front-end.', 'fw' ),
-		'thumbnail'   => $thumbnails_uri . '/translation.jpg',
+		'name'        => __( 'Analytics', 'fw' ),
+		'description' => __( 'Enables the possibility to add the Google Analytics tracking code that will let you get all the analytics about visitors, page views and more.', 'fw' ),
+		'thumbnail'   => $thumbnails_uri . '/analytics.jpg',
 		'download'    => array(
 			'github' => array(
-				'user_repo' => 'ThemeFuse/Unyson-Translation-Extension',
+				'user_repo' => 'ThemeFuse/Unyson-Analytics-Extension',
 			),
 		),
 	),
