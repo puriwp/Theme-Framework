@@ -3,7 +3,7 @@
  * Plugin Name: Theme Framework
  * Plugin URI: https://github.com/puriwp/Theme-Framework
  * Description: Theme framework for MePro theme based on Unyson Framework.
- * Version: 2.5.0
+ * Version: 3.0.0
  * Author: MinimalThemes
  * Author URI: http://minimalthemes.net
  * License: GPL2+

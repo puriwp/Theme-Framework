@@ -17,6 +17,18 @@ $extensions = array(
 			),
 		),
 	),
+	'social' => array(
+		'display'     => true,
+		'parent'      => null,
+		'name'        => __( 'Social', 'fw' ),
+		'description' => __( 'Use this extension to configure all your social related APIs. Other extensions will use the Social extension to connect to your social accounts.', 'fw' ),
+		'thumbnail'   => $thumbnails_uri . '/social.jpg',
+		'download'    => array(
+			'github' => array(
+				'user_repo' => 'ThemeFuse/Unyson-Social-Extension',
+			),
+		),
+	),
 	'media' => array(
 		'display'     => false,
 		'parent'      => null,
@@ -194,6 +206,18 @@ $extensions = array(
 		'download'    => array(
 			'github' => array(
 				'user_repo' => 'ThemeFuse/Unyson-Mailer-Extension',
+			),
+		),
+	),
+	'translation' => array(
+		'display'     => true,
+		'parent'      => null,
+		'name'        => __( 'Translations', 'fw' ),
+		'description' => __( 'This extension lets you translate your website in any language or even add multiple languages for your users to change at their will from the front-end.', 'fw' ),
+		'thumbnail'   => $thumbnails_uri . '/translation.jpg',
+		'download'    => array(
+			'github' => array(
+				'user_repo' => 'ThemeFuse/Unyson-Translation-Extension',
 			),
 		),
 	),
