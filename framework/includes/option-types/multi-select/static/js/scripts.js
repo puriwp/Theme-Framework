@@ -3,6 +3,7 @@
 		var population = item.attr('data-population');
 		var source = item.attr('data-source');
 		var limit = parseInt(item.attr('data-limit'));
+		var addnew = item.attr('data-add');
 		var xhr;
 
 		item.selectize({
@@ -12,7 +13,7 @@
 			labelField: 'title',
 			searchField: 'title',
 			options: JSON.parse(item.attr('data-options')),
-			create: false,
+			create: addnew,
 			onType: function (value) {
 				if (population == 'array') {
 					return;

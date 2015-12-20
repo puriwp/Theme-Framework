@@ -65,6 +65,7 @@ if ( ! class_exists( 'FW_Option_Type_Multi_Select' ) ):
 				'label' => false,
 				'type'  => 'text',
 				'value' => '',
+				'add'		=> false,
 			);
 		}
 
@@ -423,6 +424,7 @@ if ( ! class_exists( 'FW_Option_Type_Multi_Select' ) ):
 				$option['attr']['data-population'] = $population;
 				$option['attr']['data-source']     = json_encode( $source );
 				$option['attr']['data-limit']      = ( intval( $option['limit'] ) > 0 ) ? $option['limit'] : 0;
+				$option['attr']['data-add']      	 = ( isset( $option['add'] ) ) ? $option['add'] : false;
 			} else {
 				return '';
 			}
