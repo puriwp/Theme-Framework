@@ -331,7 +331,7 @@ final class _FW_Extensions_Manager
 		/** @var WP_Filesystem_Base $wp_filesystem */
 		global $wp_filesystem;
 
-		if (!$wp_filesystem) {
+		if (!$wp_filesystem || (is_wp_error($wp_filesystem->errors) && $wp_filesystem->errors->get_error_code())) {
 			return;
 		}
 
@@ -380,7 +380,7 @@ final class _FW_Extensions_Manager
 		/** @var WP_Filesystem_Base $wp_filesystem */
 		global $wp_filesystem;
 
-		if ( ! $wp_filesystem ) {
+		if ( !$wp_filesystem || (is_wp_error($wp_filesystem->errors) && $wp_filesystem->errors->get_error_code()) ) {
 			return;
 		}
 
@@ -1047,7 +1047,7 @@ final class _FW_Extensions_Manager
 
 		global $wp_filesystem;
 
-		if (!$wp_filesystem) {
+		if (!$wp_filesystem || (is_wp_error($wp_filesystem->errors) && $wp_filesystem->errors->get_error_code())) {
 			return new WP_Error(
 				'fs_not_initialized',
 				__('WP Filesystem is not initialized', 'fw')
@@ -1521,7 +1521,7 @@ final class _FW_Extensions_Manager
 		/** @var WP_Filesystem_Base $wp_filesystem */
 		global $wp_filesystem;
 
-		if (!$wp_filesystem) {
+		if (!$wp_filesystem || (is_wp_error($wp_filesystem->errors) && $wp_filesystem->errors->get_error_code())) {
 			return new WP_Error(
 				'fs_not_initialized',
 				__('WP Filesystem is not initialized', 'fw')
@@ -3184,17 +3184,18 @@ final class _FW_Extensions_Manager
 		if (
 			!isset($_GET['supported']) // already on 'Install Supported Extensions' page
 			&&
-			fw()->manifest->get_version() === '2.4.13'
-			&&
 			$this->can_install()
+			&&
+			(($installed_extensions = $this->get_installed_extensions()) || true)
+			&&
+			!isset($installed_extensions['page-builder'])
 			&&
 			$this->get_supported_extensions_for_install()
 		) {
-			echo '<div class="'. (fw_ext('page-builder') ? 'update-nag' : 'error') .'"> <p>';
-			echo fw_html_tag('a', array(
-				'href' => $this->get_link() .'&sub-page=install&supported',
-			), __('Install theme compatible extensions', 'fw'));
-			echo '</p></div>';
+			echo '<div class="error"> <p>'
+			, fw_html_tag('a', array('href' => $this->get_link() .'&sub-page=install&supported'),
+				__('Install theme compatible extensions', 'fw'))
+			, '</p></div>';
 		}
 	}
 }
