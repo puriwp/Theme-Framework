@@ -4,6 +4,10 @@ jQuery(document).ready(function ($) {
 
 	fwEvents.on('fw:options:init', function (data) {
 		data.$elements.find('.'+ optionTypeClass +':not(.fw-option-initialized)')
+<<<<<<< HEAD
+=======
+			.addClass('fw-option-initialized')
+>>>>>>> 610311f56b8c72320baf8b75141b55101c1db3f1
 			.find('input[type="checkbox"]')
 			.on('change', function(){
 				var $this = $(this),
@@ -29,7 +33,11 @@ jQuery(document).ready(function ($) {
 					value: JSON.parse(value)
 				});
 			})
+<<<<<<< HEAD
 			.adaptiveSwitch()
 			.addClass('fw-option-initialized');
+=======
+			.adaptiveSwitch();
+>>>>>>> 610311f56b8c72320baf8b75141b55101c1db3f1
 	});
 });

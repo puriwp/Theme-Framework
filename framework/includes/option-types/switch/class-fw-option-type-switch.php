@@ -110,6 +110,7 @@ class FW_Option_Type_Switch extends FW_Option_Type
 		} else {
 			$tmp_json = json_decode($input_value);
 
+<<<<<<< HEAD
 			/*
 			 * Check if parsing is successfuly.
 			 * If it's not - leave $input_value as it is.
@@ -118,6 +119,16 @@ class FW_Option_Type_Switch extends FW_Option_Type
 				$input_value = $tmp_json;
 			}
 
+=======
+			/**
+			 * Check if parsing is successful.
+			 * If it's not - leave $input_value as it is.
+			 */
+			if (!is_null($tmp_json)) {
+				$input_value = $tmp_json;
+			}
+
+>>>>>>> 610311f56b8c72320baf8b75141b55101c1db3f1
 
 			if (in_array($input_value, array($option['left-choice']['value'], $option['right-choice']['value']), true)) {
 				return $input_value;

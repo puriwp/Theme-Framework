@@ -603,6 +603,12 @@ fw.getQueryString = function(name) {
 	 * Usage:
 	 * var modal = new fw.Modal();
 	 *
+	 * You can add a custom CSS class to your fw.Modal this way:
+	 *
+	 * var modal = new fw.Modal ({
+	 *   modalCustomClass: 'your-custom-css-class'
+	 * });
+	 *
 	 * modal.on('open|render|closing|close', function(){});
 	 */
 	fw.Modal = Backbone.Model.extend({
@@ -615,6 +621,7 @@ fw.getQueryString = function(name) {
 			 * @private
 			 */
 			html: '',
+			modalCustomClass: '',
 			size: 'small' // small, medium, large
 		},
 		ContentView: Backbone.View.extend({
@@ -703,22 +710,28 @@ fw.getQueryString = function(name) {
 
 			this.frame = new wp.media.view.MediaFrame({
 				state: 'main',
-				states: [ new ControllerMainState ]
+				states: [ new ControllerMainState ],
+				uploader: false
 			});
 
 			var modal = this;
 
 			this.frame.once('ready', function(){
-				var $modalWrapper = modal.frame.modal.$el,
-					$modal        = $modalWrapper.find('.media-modal'),
-					$backdrop     = $modalWrapper.find('.media-modal-backdrop'),
-					size          = modal.get('size'),
-					stackSize     = modalsStack.getSize(),
-					$close        = $modalWrapper.find('.media-modal-close');
+				var $modalWrapper  = modal.frame.modal.$el,
+					$modal           = $modalWrapper.find('.media-modal'),
+					$backdrop        = $modalWrapper.find('.media-modal-backdrop'),
+					size             = modal.get('size'),
+					modalCustomClass = modal.get('modalCustomClass'),
+					stackSize        = modalsStack.getSize(),
+					$close           = $modalWrapper.find('.media-modal-close');
 
 				modal.frame.$el.addClass('hide-toolbar');
 
 				$modalWrapper.addClass('fw-modal');
+
+				if (modalCustomClass) {
+					$modalWrapper.addClass(modalCustomClass);
+				}
 
 				if (_.indexOf(['large', 'medium', 'small'], size) !== -1) {
 					$modalWrapper.addClass('fw-modal-' + size);
@@ -919,6 +932,49 @@ fw.getQueryString = function(name) {
 	});
 })();
 
+/**
+ * @param {String} [data] An object with two keys:
+ *                        options: Your array with option types
+ *                        data: a string that will contain correctly serialized data
+ *                              Ex.: "parameter1=val1&par2=value"
+ *
+ * @returns {Promise} jQuery promise you can use in order to get your values
+ *
+ * modal.getValuesFromServer({options: your_options})
+ *     .done(function (response, status, xhr) {
+ *         console.log(response.data.values); // your values ready to be used
+ *     })
+ *     .fail(function (xhr, status, error) {
+ *         // handle errors
+ *         console.error(status + ': ' + error);
+ *     });
+ */
+fw.getValuesFromServer = function (data) {
+	var opts = _.extend({
+		options: [],
+		actualValues: ""
+	}, data);
+
+	if (opts.options.length === 0) { return {}; }
+
+	var dataToSend = [
+		'action=fw_backend_options_get_values',
+		'options='+ encodeURIComponent(JSON.stringify(opts.options)),
+		'name_prefix=fw_edit_options_modal'
+	];
+
+	if (opts.actualValues) {
+		dataToSend.push(opts.actualValues);
+	}
+
+	return jQuery.ajax({
+		url: ajaxurl,
+		type: 'POST',
+		data: dataToSend.join('&'),
+		dataType: 'json'
+	});
+};
+
 (function(){
 	var fwLoadingId = 'fw-options-modal',
 		htmlCache = {};
@@ -942,7 +998,9 @@ fw.getQueryString = function(name) {
 	 *  values: {
 	 *      'test1': 'Default1',
 	 *      'test2': 'Default2'
-	 *  }
+	 *  },
+	 *  modalCustomClass: 'some-custom-class' // if you want to add some css class
+	 *                                        // to your modal
 	 * });
 	 *
 	 * // listen for values change
@@ -963,21 +1021,20 @@ fw.getQueryString = function(name) {
 			onSubmit: function(e) {
 				e.preventDefault();
 
-				var loadingId = fwLoadingId +':submit';
+				var loadingId = fwLoadingId +':submit',
+					view = this;
 
 				fw.loading.show(loadingId);
 
-				jQuery.ajax({
-					url: ajaxurl,
-					type: 'POST',
-					data: [
-						'action=fw_backend_options_get_values',
-						'options='+ encodeURIComponent(JSON.stringify(this.model.get('options'))),
-						'name_prefix=fw_edit_options_modal',
-						this.$el.serialize()
-					].join('&'),
-					dataType: 'json',
-					success: _.bind(function (response, status, xhr) {
+				/**
+				 * Init all Lazy Tabs to render all form inputs.
+				 * Lazy Tabs script is listening the form 'submit' event
+				 * but it's executed after this event.
+				 */
+				fwEvents.trigger('fw:options:init:tabs', {$elements: view.$el});
+
+				view.model.getValuesFromServer(view.$el.serialize())
+					.done(function (response, status, xhr) {
 						fw.loading.hide(loadingId);
 
 						if (!response.success) {
@@ -990,12 +1047,12 @@ fw.getQueryString = function(name) {
 							return;
 						}
 
-						this.model.set('values', response.data.values);
+						view.model.set('values', response.data.values);
 
 						// simulate click on close button to fire animations
-						this.model.frame.modal.$el.find('.media-modal-close').trigger('click');
-					}, this),
-					error: function (xhr, status, error) {
+						view.model.frame.modal.$el.find('.media-modal-close').trigger('click');
+					})
+					.fail(function (xhr, status, error) {
 						fw.loading.hide(loadingId);
 
 						/**
@@ -1004,8 +1061,7 @@ fw.getQueryString = function(name) {
 						 * do not delete all his work
 						 */
 						alert(status +': '+ error.message);
-					}
-				});
+					});
 			},
 			resetForm: function() {
 				var loadingId = fwLoadingId +':reset';
@@ -1136,6 +1192,31 @@ fw.getQueryString = function(name) {
 
 			return this;
 		},
+
+		/**
+		 * @param {String} [actualValues] A string containing correctly serialized
+		 *                                data that will be sent to the server.
+		 *                                Ex.: "parameter1=val1&par2=value"
+		 *
+		 * @returns {Promise} jQuery promise you can use in order to get your values
+		 *
+		 *
+		 * modal.getValuesFromServer()
+		 *     .done(function (response, status, xhr) {
+		 *         console.log(response.data.values); // your values ready to be used
+		 *     })
+		 *     .fail(function (xhr, status, error) {
+		 *         // handle errors
+		 *         console.error(status + ': ' + error);
+		 *     });
+		 */
+		getValuesFromServer: function (actualValues) {
+			return fw.getValuesFromServer({
+				options: this.get('options'),
+				actualValues: actualValues
+			})
+		},
+
 		getHtmlCacheId: function(values) {
 			return fw.md5(
 				JSON.stringify(this.get('options')) +
@@ -1144,11 +1225,51 @@ fw.getQueryString = function(name) {
 			);
 		},
 		updateHtml: function(values) {
-			var cacheId = this.getHtmlCacheId(values);
+			if ((function(options){
+					var optionTypesWithDefaultFwStorageParam = {'mailer':true};
 
-			if (typeof htmlCache[cacheId] != 'undefined') {
-				this.set('html', htmlCache[cacheId]);
-				return;
+					function containsFwStorageOption(opts){
+						if (
+							(typeof opts['fw-storage'] != 'undefined')
+							||
+							(
+								typeof opts['type'] != 'undefined'
+								&&
+								typeof optionTypesWithDefaultFwStorageParam[ opts['type'] ] != 'undefined'
+							)
+						) {
+							return true;
+						}
+
+						for (var key in opts) {
+							if (!opts.hasOwnProperty(key)) {
+								continue;
+							}
+
+							if (typeof opts[key] == 'object') {
+								if (containsFwStorageOption(opts[key])) {
+									return true;
+								}
+							}
+						}
+
+						return false;
+					}
+
+					return containsFwStorageOption(options);
+				})(this.get('options'))
+			) {
+				/**
+				 * Bypass html cache and load values from server
+				 * if there is at least one option that uses the `fw-storage` parameter
+				 */
+			} else {
+				var cacheId = this.getHtmlCacheId(values);
+
+				if (typeof htmlCache[cacheId] != 'undefined') {
+					this.set('html', htmlCache[cacheId]);
+					return;
+				}
 			}
 
 			fw.loading.show(fwLoadingId);
@@ -1163,7 +1284,7 @@ fw.getQueryString = function(name) {
 				data: {
 					action: 'fw_backend_options_render',
 					options: JSON.stringify(this.get('options')),
-					values: typeof values == 'undefined' ? this.get('values') : values,
+					values: JSON.stringify(typeof values == 'undefined' ? this.get('values') : values),
 					data: {
 						name_prefix: 'fw_edit_options_modal',
 						id_prefix: 'fw-edit-options-modal-'
