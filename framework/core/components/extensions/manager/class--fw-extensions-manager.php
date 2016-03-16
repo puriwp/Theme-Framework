@@ -731,14 +731,13 @@ final class _FW_Extensions_Manager
 		if ($menu_exists) {
 			// do nothing
 		} else {
-			add_menu_page(
+			add_submenu_page(
+				'plugins.php',
 				$data['title'],
 				$data['title'],
 				$data['capability'],
 				$data['slug'],
-				$data['content_callback'],
-				'none',
-				3
+				$data['content_callback']
 			);
 		}
 	}
