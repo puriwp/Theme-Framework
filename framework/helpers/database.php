@@ -218,7 +218,7 @@
 			/**
 			 * Allow known post types that sure don't have options with 'fw-storage' parameter
 			 */
-			if (!in_array($post_type, array('fw-slider'))) {
+			if (!in_array($post_type, array('sliders'))) {
 				trigger_error(
 					'Infinite recursion detected in post type "'. $post_type .'" options caused by '. __FUNCTION__ .'()',
 					E_USER_WARNING

@@ -3,7 +3,7 @@
  * Plugin Name: Theme Framework
  * Plugin URI: https://github.com/puriwp/Theme-Framework
  * Description: Theme framework that comes with a bunch of built in extensions based on Unyson Framework.
- * Version: 3.1.1
+ * Version: 3.5.0
  * Author: PuriWP
  * Author URI: http://puriwp.com/
  * License: GPL2+
