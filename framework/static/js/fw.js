@@ -678,8 +678,8 @@ fw.getQueryString = function(name) {
 			var modal = this;
 
 			var ControllerMainState = wp.media.controller.State.extend({
-				id: 'main',
 				defaults: {
+					id: 'main',
 					content: 'main',
 					menu: 'default',
 					title: this.get('title'),
@@ -1217,6 +1217,15 @@ fw.getValuesFromServer = function (data) {
 			})
 		},
 
+		/**
+		 * @returns {Promise} jQuery promise
+		 *
+		 * Will work out just like getValuesFromServer() did, but it will
+		 * also include values that are currently in the form.
+		 */
+		getActualValues: function () {
+			return this.getValuesFromServer(this.content.$el.serialize());
+		},
 		getHtmlCacheId: function(values) {
 			return fw.md5(
 				JSON.stringify(this.get('options')) +

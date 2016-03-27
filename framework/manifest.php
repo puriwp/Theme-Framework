@@ -3,4 +3,4 @@
 $manifest = array();
 
 $manifest['name'] = __('Framework', 'fw');
-$manifest['version'] = '3.1.1';
+$manifest['version'] = '3.5.0';
