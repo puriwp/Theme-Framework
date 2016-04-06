@@ -41,9 +41,7 @@ class FW_Option_Storage_Type_WP_Option extends FW_Option_Storage_Type {
 	 */
 	protected function _load( $id, array $option, $value, array $params ) {
 		if ($wp_option = $this->get_wp_option($option, $params)) {
-<<<<<<< HEAD
-			return get_option( $wp_option, $value );
-=======
+
 			if (isset($option['fw-storage']['key'])) {
 				$wp_option_value = get_option($wp_option, array());
 
@@ -51,7 +49,6 @@ class FW_Option_Storage_Type_WP_Option extends FW_Option_Storage_Type {
 			} else {
 				return get_option($wp_option, $value);
 			}
->>>>>>> 208323b35cadb629bf011fa9aa58d21b1d6c374b
 		} else {
 			return $value;
 		}
