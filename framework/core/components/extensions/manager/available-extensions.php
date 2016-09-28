@@ -19,7 +19,7 @@ $extensions = array(
 			)
 		),
 	),
-
+/*
 	'wp-shortcodes' => array(
 		'display'     => true,
 		'parent'      => 'shortcodes',
@@ -36,7 +36,7 @@ $extensions = array(
 			),
 		),
 	),
-
+*/
 	'backups' => array(
 		'display'     => true,
 		'parent'      => null,
@@ -134,7 +134,7 @@ $extensions = array(
 			),
 		),
 	),
-
+/*
 	'events' => array(
 		'display'     => true,
 		'parent'      => null,
@@ -148,7 +148,7 @@ $extensions = array(
 			),
 		),
 	),
-
+*/
 	'analytics' => array(
 		'display'     => true,
 		'parent'      => null,
@@ -176,7 +176,7 @@ $extensions = array(
 			),
 		),
 	),
-
+/*
 	'learning' => array(
 		'display'     => true,
 		'parent'      => null,
@@ -190,7 +190,7 @@ $extensions = array(
 			),
 		),
 	),
-
+*/
 	'shortcodes' => array(
 		'display'     => false,
 		'parent'      => null,
@@ -316,7 +316,7 @@ $extensions = array(
 			),
 		),
 	),
-
+/*
 	'translation' => array(
 		'display'     => true,
 		'parent'      => null,
@@ -330,4 +330,5 @@ $extensions = array(
 			)
 		),
 	),
+*/
 );
