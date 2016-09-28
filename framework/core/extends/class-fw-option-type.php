@@ -334,11 +334,7 @@ abstract class FW_Option_Type
 	 * @since 2.5.0
 	 */
 	final public function storage_load($id, array $option, $value, array $params = array()) {
-<<<<<<< HEAD
-		if (
-=======
 		if ( // do not check !empty($option['fw-storage']) because this param can be set in option defaults
->>>>>>> 281ed039b5bc2261d7212fcb208592ae8749cc97
 			$this->get_type() === $option['type']
 			&&
 			($option = array_merge($this->get_defaults(), $option))
