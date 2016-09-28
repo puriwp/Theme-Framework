@@ -147,14 +147,16 @@ class FW_Option_Type_Upload extends FW_Option_Type
 	{
 		$l10n = array_merge(
 			array(
-				'button_add'    => __('Add Image', 'fw'), // TODO: add context ?
-				'button_edit'   => __('Edit', 'fw') // TODO: add context ?
+				'button_add'    => __('Add Image', 'fw'),
+				'button_edit'   => __('Edit', 'fw'),
+				'modal_title'   => __('Select Image', 'fw'),
 			),
 			$l10n
 		);
 		$wrapper_attr = array_merge($wrapper_attr, array(
 			'data-l10n-button-add'  => $l10n['button_add'],
 			'data-l10n-button-edit' => $l10n['button_edit'],
+			'data-l10n-modal-title' => $l10n['modal_title'],
 		));
 
 		$wrapper_attr['class'] .= ' images-only';
@@ -203,7 +205,15 @@ class FW_Option_Type_Upload extends FW_Option_Type
 		if (empty($input_value)) {
 			return $option['value'];
 		} else {
-			return $this->get_attachment_info($input_value);
+			// Sometimes we want to do direct
+			// [fw_get_options_values_from_input](fw-get-options-values-from-input)
+			// and we pass full attachment array in, with `attachment_id` and `url`.
+			// It should accept and work correctly with this form of calling it.
+			if (is_array($input_value)) {
+				return $input_value;
+			} else {
+				return $this->get_attachment_info($input_value);
+			}
 		}
 	}
 

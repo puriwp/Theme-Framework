@@ -192,6 +192,8 @@ $texts = apply_filters('fw_settings_form_texts', array(
 		var formSelector = 'form[data-fw-form-id="fw_settings"]',
 			loadingExtraMessage = $('#fw-settings-form-ajax-save-extra-message').attr('data-html');
 
+		$(formSelector).addClass('prevent-all-tabs-init'); // fixes https://github.com/ThemeFuse/Unyson/issues/1491
+
 		fwForm.initAjaxSubmit({
 			selector: formSelector,
 			loading: function(elements, show) {
@@ -224,9 +226,14 @@ $texts = apply_filters('fw_settings_form_texts', array(
 							allowClose: false
 						}
 					);
+
+					return 500; // fixes https://github.com/ThemeFuse/Unyson/issues/1491
 				} else {
 					// fw.soleModal.hide('fw-options-ajax-save-loading'); // we need to show loading until the form reset ajax will finish
 				}
+			},
+			afterSubmitDelay: function (elements) {
+				fwEvents.trigger('fw:options:init:tabs', {$elements: elements.$form});
 			},
 			onErrors: function() {
 				fw.soleModal.hide('fw-options-ajax-save-loading');
@@ -376,6 +383,18 @@ $texts = apply_filters('fw_settings_form_texts', array(
 				// undo not first boxes auto close
 				data.$elements.find('.fw-backend-postboxes > .fw-postbox:not(:first-child)').removeClass('closed');
 			}, 10);
+		});
+	});
+</script>
+<?php endif; ?>
+
+<?php if (!empty($_GET['_focus_tab'])): ?>
+<script type="text/javascript">
+	jQuery(function($){
+		fwEvents.one('fw:options:init', function(){
+			setTimeout(function(){
+				$('a[href="#<?php echo esc_js($_GET['_focus_tab']); ?>"]').trigger('click');
+			}, 90);
 		});
 	});
 </script>

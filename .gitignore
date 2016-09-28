@@ -6,7 +6,6 @@
 /.travis.yml
 /CONTRIBUTING.md
 /readme.txt
-/README.md
 /tests/*
 /framework/LICENSE
 /framework/index.html

@@ -3,7 +3,7 @@
  */
 
 "use strict";
-(function($, _, fwe){
+(function($, _, fwe, localized){
 	jQuery( document ).ready( function( ) {
 		$.fn.pressEnter = function(fn) {
 			return this.each(function() {
@@ -101,8 +101,7 @@
 						center  : googleMapsPos,
 						zoom    : 15,
 						mapTypeControl: false,
-						streetViewControl: false,
-						mapMaker: true
+						streetViewControl: false
 					};
 
 					if (_.isEmpty(this.map.object.map)){
@@ -299,17 +298,51 @@
 			}
 		}
 
+		var pendingInit = [];
 
 		fwe.on('fw:options:init', function (data) {
 
 			var obj = data.$elements.find('.fw-option-type-map:not(.initialized)');
 
-			obj.each(function(){
-				fw_option_map_initialize($(this));
-			});
+			if (!obj.length) {
+				return;
+			}
+
+			if (typeof google == 'undefined' || typeof google.maps == 'undefined') {
+				if (pendingInit.length) { // already in process of loading the script
+					pendingInit.push(obj);
+				} else {
+					pendingInit.push(obj);
+
+					/**
+					 * Lazy load script only on option init to prevent API request limit and error
+					 * Fixes https://github.com/ThemeFuse/Unyson/issues/1675
+					 */
+					$.ajax({
+						type: "GET",
+						url: localized.google_maps_js_uri,
+						dataType: "script",
+						cache: true
+					}).done(function(){
+						$.each(pendingInit, function(i, obj){
+							obj.each(function(){
+								fw_option_map_initialize($(this));
+							});
+						});
+						pendingInit = [];
+					}).fail(function(){
+						console.error('Failed to load Google Maps script');
+						pendingInit = [];
+					});
+				}
+			} else {
+				obj.each(function(){
+					fw_option_map_initialize($(this));
+				});
+			}
 
 			obj.addClass('initialized');
 		});
 	});
 
-})(jQuery, _, fwEvents);
+})(jQuery, _, fwEvents, _fw_option_type_map);

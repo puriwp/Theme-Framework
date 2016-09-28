@@ -37,8 +37,9 @@ abstract class FW_Option_Type
 	abstract protected function _render($id, $option, $data);
 
 	/**
-	 * Extract correct value for $option['value'] from input array
+	 * Extract correct value that will be stored in db or $option['value'] from raw form input value
 	 * If input value is empty, will be returned $option['value']
+	 * This method should be named get_db_value($form_input_value, $option)
 	 * @param array $option Option array merged with _get_defaults()
 	 * @param array|string|null $input_value
 	 * @return string|array|int|bool Correct value
@@ -74,7 +75,7 @@ abstract class FW_Option_Type
 	 */
 	final public static function get_default_id_prefix()
 	{
-		return 'fw-option-';
+		return fw()->backend->get_options_id_attr_prefix();
 	}
 
 	/**
@@ -84,7 +85,7 @@ abstract class FW_Option_Type
 	 */
 	final public static function get_default_name_prefix()
 	{
-		return 'fw_options';
+		return fw()->backend->get_options_name_attr_prefix();
 	}
 
 	final public function __construct()
@@ -117,8 +118,10 @@ abstract class FW_Option_Type
 	 * @param array  $option
 	 * @param array  $data
 	 * @return array
+	 *
+	 * @since 2.5.10
 	 */
-	private function prepare(&$id, &$option, &$data)
+	public function prepare(&$id, &$option, &$data)
 	{
 		$data = array_merge(
 			array(
@@ -195,6 +198,10 @@ abstract class FW_Option_Type
 	 */
 	final public function enqueue_static($id = '', $option = array(), $data = array())
 	{
+		if ($this->static_enqueued) {
+			return false;
+		}
+
 		if (
 			!doing_action('admin_enqueue_scripts')
 			&&
@@ -230,10 +237,6 @@ abstract class FW_Option_Type
 			}
 		}
 
-		if ($this->static_enqueued) {
-			return false;
-		}
-
 		$this->prepare($id, $option, $data);
 
 		$call_next_time = $this->_enqueue_static($id, $option, $data);
@@ -244,8 +247,9 @@ abstract class FW_Option_Type
 	}
 
 	/**
-	 * Extract correct value for $option['value'] from input array
+	 * Extract correct value that will be stored in db or $option['value'] from raw form input value
 	 * If input value is empty, will be returned $option['value']
+	 * This method should be named get_db_value($form_input_value, $option)
 	 * @param  array $option
 	 * @param  mixed|null $input_value Option's value from $_POST or elsewhere. If is null, it means it does not exists
 	 * @return array|string
@@ -330,7 +334,11 @@ abstract class FW_Option_Type
 	 * @since 2.5.0
 	 */
 	final public function storage_load($id, array $option, $value, array $params = array()) {
+<<<<<<< HEAD
 		if (
+=======
+		if ( // do not check !empty($option['fw-storage']) because this param can be set in option defaults
+>>>>>>> 281ed039b5bc2261d7212fcb208592ae8749cc97
 			$this->get_type() === $option['type']
 			&&
 			($option = array_merge($this->get_defaults(), $option))
@@ -371,7 +379,7 @@ abstract class FW_Option_Type
 	 * @since 2.5.0
 	 */
 	final public function storage_save($id, array $option, $value, array $params = array()) {
-		if (
+		if ( // do not check !empty($option['fw-storage']) because this param can be set in option defaults
 			$this->get_type() === $option['type']
 			&&
 			($option = array_merge($this->get_defaults(), $option))

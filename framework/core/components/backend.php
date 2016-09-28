@@ -69,6 +69,22 @@ final class _FW_Component_Backend {
 		return 'theme-options';
 	}
 
+	/**
+	 * @return string
+	 * @since 2.6.3
+	 */
+	public function get_options_name_attr_prefix() {
+		return 'fw_options';
+	}
+
+	/**
+	 * @return string
+	 * @since 2.6.3
+	 */
+	public function get_options_id_attr_prefix() {
+		return 'fw-option-';
+	}
+
 	private function get_current_edit_taxonomy() {
 		static $cache_current_taxonomy_data = null;
 
@@ -345,17 +361,21 @@ final class _FW_Component_Backend {
 				fw_get_framework_directory_uri( '/static/js/fw.js' ),
 				array( 'jquery', 'fw-events', 'backbone', 'qtip' ),
 				fw()->manifest->get_version(),
-				true
+				false // false fixes https://github.com/ThemeFuse/Unyson/issues/1625#issuecomment-224219454
 			);
 
 			wp_localize_script( 'fw', '_fw_localized', array(
-				'FW_URI'   => fw_get_framework_directory_uri(),
-				'SITE_URI' => site_url(),
-				'l10n'     => array(
+				'FW_URI'     => fw_get_framework_directory_uri(),
+				'SITE_URI'   => site_url(),
+				'LOADER_URI' => apply_filters( 'fw_loader_image', fw_get_framework_directory_uri() . '/static/img/logo.svg' ),
+				'l10n'       => array(
 					'done'     => __( 'Done', 'fw' ),
 					'ah_sorry' => __( 'Ah, Sorry', 'fw' ),
 					'save'     => __( 'Save', 'fw' ),
 					'reset'    => __( 'Reset', 'fw' ),
+					'apply'    => __( 'Apply', 'fw' ),
+					'cancel'   => __( 'Cancel', 'fw' ),
+					'ok'       => __( 'Ok', 'fw' )
 				),
 			) );
 		}
@@ -447,7 +467,11 @@ final class _FW_Component_Backend {
 
 		wp_register_script(
 			'fw-moment',
-			fw_get_framework_directory_uri( '/static/libs/moment/moment.min.js' ),
+			/**
+			 * IMPORTANT: At the end of the script is added this line:
+			 * moment.locale(document.documentElement.lang.slice(0, 2)); // fixes https://github.com/ThemeFuse/Unyson/issues/1767
+			 */
+			fw_get_framework_directory_uri( '/static/libs/moment/moment-with-locales.min.js' ),
 			array(),
 			fw()->manifest->get_version(),
 			true
@@ -647,7 +671,30 @@ final class _FW_Component_Backend {
 			// this is needed for flash messages (admin notices) to be displayed properly
 			echo '<h2 class="fw-hidden"></h2>';
 		} else {
-			echo '<h2>' . __( 'Theme Options', 'fw' ) . '</h2><br/>';
+			$title = __( 'Theme Settings', 'fw' );
+
+			// Extract page title from menu title
+			do {
+				global $menu, $submenu;
+
+				foreach ($menu as $_menu) {
+					if ($_menu[2] === $this->_get_settings_page_slug()) {
+						$title = $_menu[0];
+						break 2;
+					}
+				}
+
+				foreach ($submenu as $_menu) {
+					foreach ($_menu as $_submenu) {
+						if ($_submenu[2] === $this->_get_settings_page_slug()) {
+							$title = $_submenu[0];
+							break 3;
+						}
+					}
+				}
+			} while(false);
+
+			echo '<h2>' . esc_html($title) . '</h2><br/>';
 		}
 
 		$this->settings_form->render();
@@ -672,7 +719,6 @@ final class _FW_Component_Backend {
 			'limit_option_types' => false,
 			'limit_container_types' => false,
 			'limit_level' => 1,
-			'info_wrapper' => true,
 		) );
 
 		if (empty($collected)) {
@@ -681,27 +727,27 @@ final class _FW_Component_Backend {
 
 		$values = fw_get_db_post_option( $post->ID );
 
-		foreach ( $collected as &$option ) {
+		foreach ( $collected as $id => &$option ) {
 			if (
-				$option['group'] === 'container'
+				isset($option['options']) // container
 				&&
-				$option['option']['type'] === 'box'
+				$option['type'] === 'box'
 			) { // this is a box, add it as a metabox
-				$context  = isset( $option['option']['context'] )
-					? $option['option']['context']
+				$context  = isset( $option['context'] )
+					? $option['context']
 					: 'normal';
-				$priority = isset( $option['option']['priority'] )
-					? $option['option']['priority']
+				$priority = isset( $option['priority'] )
+					? $option['priority']
 					: 'default';
 
 				add_meta_box(
-					'fw-options-box-' . $option['id'],
-					empty( $option['option']['title'] ) ? ' ' : $option['option']['title'],
+					'fw-options-box-' . $id,
+					empty( $option['title'] ) ? ' ' : $option['title'],
 					$this->print_meta_box_content_callback,
 					$post_type,
 					$context,
 					$priority,
-					$this->render_options( $option['option']['options'], $values )
+					$this->render_options( $option['options'], $values )
 				);
 			} else { // this is not a box, wrap it in auto-generated box
 				add_meta_box(
@@ -711,7 +757,7 @@ final class _FW_Component_Backend {
 					$post_type,
 					'normal',
 					'default',
-					$this->render_options( array($option['id'] => $option['option']), $values )
+					$this->render_options( array($id => $option), $values )
 				);
 			}
 		}
@@ -747,6 +793,43 @@ final class _FW_Component_Backend {
 		echo $this->render_options( $collected, $values, array(), 'taxonomy' );
 	}
 
+	/**
+	 * @param string $taxonomy
+	 */
+	public function _action_create_add_taxonomy_options( $taxonomy ) {
+		$options = fw()->theme->get_taxonomy_options( $taxonomy );
+		if ( empty( $options ) ) {
+			return;
+		}
+
+		$collected = array();
+
+		fw_collect_options( $collected, $options, array(
+			'limit_option_types'    => false,
+			'limit_container_types' => false,
+			'limit_level'           => 1,
+		) );
+
+		if ( empty( $collected ) ) {
+			return;
+		}
+
+		// fixes word_press style: .form-field input { width: 95% }
+		echo '<style type="text/css">.fw-option-type-radio input, .fw-option-type-checkbox input { width: auto; }</style>';
+
+		echo '<div class="fw-force-xs">';
+		echo $this->render_options( $collected, array(), array(), 'taxonomy' );
+		echo '</div>';
+
+		echo '<script type="text/javascript">'
+			.'jQuery(function($){'
+			.'    $("#submit").on("click", function(){'
+			.'        $("html, body").animate({ scrollTop: $("#col-left").offset().top });'
+			.'    });'
+			.'});'
+			.'</script>';
+	}
+
 	public function _action_init() {
 		$current_edit_taxonomy = $this->get_current_edit_taxonomy();
 
@@ -755,45 +838,23 @@ final class _FW_Component_Backend {
 				$current_edit_taxonomy['taxonomy'] . '_edit_form',
 				array( $this, '_action_create_taxonomy_options' )
 			);
+			add_action(
+				$current_edit_taxonomy['taxonomy'] . '_add_form_fields',
+				array( $this, '_action_create_add_taxonomy_options' )
+			);
 		}
 
 		if ( ! empty( $_POST ) ) {
 			// is form submit
 			add_action( 'edited_term', array( $this, '_action_term_edit' ), 10, 3 );
-		}
-	}
 
-	/**
-	 * Experimental custom options save
-	 * @param array $options
-	 * @param array $values
-	 * @return array
-	 */
-	private function process_options_handlers($options, $values)
-	{
-		$handled_values = array();
-
-		foreach (
-			fw_extract_only_options($options)
-			as $option_id => $option
-		) {
-			if (
-				isset($option['option_handler'])
-				&&
-				$option['option_handler'] instanceof FW_Option_Handler
-			) {
-				/*
-				 * if the option has a custom option_handler
-				 * the saving is delegated to the handler,
-				 * so it does not go to the post_meta
-				 */
-				$option['option_handler']->save_option_value($option_id, $option, $values[$option_id]);
-
-				$handled_values[$option_id] = true;
+			if ($current_edit_taxonomy['taxonomy']) {
+				add_action(
+					'create_' . $current_edit_taxonomy['taxonomy'],
+					array($this, '_action_save_taxonomy_fields')
+				);
 			}
 		}
-
-		return $handled_values;
 	}
 
 	/**
@@ -808,7 +869,7 @@ final class _FW_Component_Backend {
 			&&
 			intval($_POST['post_ID']) === intval($post_id)
 			&&
-			!empty($_POST[ FW_Option_Type::get_default_name_prefix() ]) // this happens on Quick Edit
+			!empty($_POST[ $this->get_options_name_attr_prefix() ]) // this happens on Quick Edit
 		) {
 			/**
 			 * This happens on regular post form submit
@@ -828,19 +889,12 @@ final class _FW_Component_Backend {
 			}
 
 			$old_values = (array)fw_get_db_post_option($post_id);
-			$current_values = fw_get_options_values_from_input(
-				fw()->theme->get_post_options($post->post_type)
-			);
 
 			fw_set_db_post_option(
 				$post_id,
 				null,
-				array_diff_key( // remove handled values
-					$current_values,
-					$this->process_options_handlers(
-						fw()->theme->get_post_options($post->post_type),
-						$current_values
-					)
+				fw_get_options_values_from_input(
+					fw()->theme->get_post_options($post->post_type)
 				)
 			);
 
@@ -865,24 +919,16 @@ final class _FW_Component_Backend {
 					break;
 				}
 
-				if (empty($_POST[ FW_Option_Type::get_default_name_prefix() ])) {
+				if (empty($_POST[ $this->get_options_name_attr_prefix() ])) {
 					// this happens on Quick Edit
 					break;
 				}
 
-				$current_values = fw_get_options_values_from_input(
-					fw()->theme->get_post_options($parent->post_type)
-				);
-
 				fw_set_db_post_option(
 					$post->ID,
 					null,
-					array_diff_key( // remove handled values
-						$current_values,
-						$this->process_options_handlers(
-							fw()->theme->get_post_options($parent->post_type),
-							$current_values
-						)
+					fw_get_options_values_from_input(
+						fw()->theme->get_post_options($parent->post_type)
 					)
 				);
 			} while(false);
@@ -1019,28 +1065,70 @@ final class _FW_Component_Backend {
 		return true;
 	}
 
-	public function _action_term_edit( $term_id, $tt_id, $taxonomy ) {
-		if ( ! isset( $_POST['action'] ) || ! isset( $_POST['taxonomy'] ) ) {
-			return; // this is not real term form submit, abort save
+	/**
+	 * @param int $term_id
+	 */
+	public function _action_save_taxonomy_fields( $term_id ) {
+		if (
+			isset( $_POST['action'] )
+			&&
+			'add-tag' === $_POST['action']
+			&&
+			isset( $_POST['taxonomy'] )
+			&&
+			($taxonomy = get_taxonomy( $_POST['taxonomy'] ))
+			&&
+			current_user_can($taxonomy->cap->edit_terms)
+		) { /* ok */ } else { return; }
+
+		$options = fw()->theme->get_taxonomy_options( $taxonomy->name );
+		if ( empty( $options ) ) {
+			return;
 		}
+
+		fw_set_db_term_option(
+			$term_id,
+			$taxonomy->name,
+			null,
+			fw_get_options_values_from_input($options)
+		);
+
+		do_action( 'fw_save_term_options', $term_id, $taxonomy->name, array() );
+	}
+
+	public function _action_term_edit( $term_id, $tt_id, $taxonomy ) {
+		if (
+			isset( $_POST['action'] )
+			&&
+			'editedtag' === $_POST['action']
+			&&
+			isset( $_POST['taxonomy'] )
+			&&
+			($taxonomy = get_taxonomy( $_POST['taxonomy'] ))
+			&&
+			current_user_can($taxonomy->cap->edit_terms)
+		) { /* ok */ } else { return; }
 
 		if (intval(FW_Request::POST('tag_ID')) != $term_id) {
 			// the $_POST values belongs to another term, do not save them into this one
 			return;
 		}
 
-		$old_values = (array) fw_get_db_term_option( $term_id, $taxonomy );
+		$options = fw()->theme->get_taxonomy_options( $taxonomy->name );
+		if ( empty( $options ) ) {
+			return;
+		}
+
+		$old_values = (array) fw_get_db_term_option( $term_id, $taxonomy->name );
 
 		fw_set_db_term_option(
 			$term_id,
-			$taxonomy,
+			$taxonomy->name,
 			null,
-			fw_get_options_values_from_input(
-				fw()->theme->get_taxonomy_options( $taxonomy )
-			)
+			fw_get_options_values_from_input($options)
 		);
 
-		do_action( 'fw_save_term_options', $term_id, $taxonomy, $old_values );
+		do_action( 'fw_save_term_options', $term_id, $taxonomy->name, $old_values );
 	}
 
 	public function _action_admin_register_scripts() {
@@ -1084,8 +1172,6 @@ final class _FW_Component_Backend {
 				'edit-tags' === $current_screen->base
 				&&
 				$current_screen->taxonomy
-				&&
-				! empty( $_GET['tag_ID'] )
 			) {
 				fw()->backend->enqueue_options_static(
 					fw()->theme->get_taxonomy_options( $current_screen->taxonomy )
@@ -1133,6 +1219,8 @@ final class _FW_Component_Backend {
 			} else {
 				$values = array();
 			}
+
+			$values = array_intersect_key($values, fw_extract_only_options($options));
 		}
 
 		// data
@@ -1204,7 +1292,9 @@ final class _FW_Component_Backend {
 		}
 
 		wp_send_json_success( array(
-			'html' => fw()->backend->render_options( $options, $values, $data )
+			'html' => fw()->backend->render_options( $options, $values, $data ),
+			/** @since 2.6.1 */
+			'default_values' => fw_get_options_values_from_input($options, array()),
 		) );
 	}
 
@@ -1240,7 +1330,7 @@ final class _FW_Component_Backend {
 			if ( isset( $_POST['name_prefix'] ) ) {
 				$name_prefix = FW_Request::POST( 'name_prefix' );
 			} else {
-				$name_prefix = FW_Option_Type::get_default_name_prefix();
+				$name_prefix = $this->get_options_name_attr_prefix();
 			}
 		}
 
@@ -1265,7 +1355,7 @@ final class _FW_Component_Backend {
 			return $data;
 		}
 
-		if ( $values = FW_Request::POST( FW_Option_Type::get_default_name_prefix() ) ) {
+		if ( $values = FW_Request::POST( $this->get_options_name_attr_prefix() ) ) {
 			// This is form submit, extract correct values from $_POST values
 			$values = fw_get_options_values_from_input( $options, $values );
 		} else {
@@ -1313,7 +1403,23 @@ final class _FW_Component_Backend {
 		$old_values = (array) fw_get_db_settings_option();
 
 		if ( ! empty( $_POST['_fw_reset_options'] ) ) { // The "Reset" button was pressed
-			fw_set_db_settings_option( null, array() );
+			fw_set_db_settings_option(
+				null,
+				/**
+				 * Some values that don't relate to design, like API credentials, are useful to not be wiped out.
+				 *
+				 * Usage:
+				 *
+				 * add_filter('fw_settings_form_reset:values', '_filter_add_persisted_option', 10, 2);
+				 * function _filter_add_persisted_option ($current_persisted, $old_values) {
+				 *   $value_to_persist = fw_akg('my/multi/key', $old_values);
+				 *   fw_aks('my/multi/key', $value_to_persist, $current_persisted);
+				 *
+				 *   return $current_persisted;
+				 * }
+				 */
+				apply_filters('fw_settings_form_reset:values', array(), $old_values)
+			);
 
 			FW_Flash_Messages::add( $flash_id, __( 'The options were successfully reset', 'fw' ), 'success' );
 
@@ -1479,6 +1585,8 @@ final class _FW_Component_Backend {
 	 * @param array $options
 	 */
 	public function enqueue_options_static( $options ) {
+		static $static_enqueue = true;
+
 		if (
 			!doing_action('admin_enqueue_scripts')
 			&&
@@ -1496,11 +1604,15 @@ final class _FW_Component_Backend {
 			 * in case if this method is called before enqueue_scripts action
 			 * and option types has some of these in their dependencies
 			 */
-			$this->register_static();
+			if ($static_enqueue) {
+				$this->register_static();
 
-			wp_enqueue_media();
-			wp_enqueue_style( 'fw-backend-options' );
-			wp_enqueue_script( 'fw-backend-options' );
+				wp_enqueue_media();
+				wp_enqueue_style( 'fw-backend-options' );
+				wp_enqueue_script( 'fw-backend-options' );
+
+				$static_enqueue = false;
+			}
 		}
 
 		$collected = array();
@@ -1509,15 +1621,21 @@ final class _FW_Component_Backend {
 			'limit_option_types' => false,
 			'limit_container_types' => false,
 			'limit_level' => 0,
-			'info_wrapper' => true,
+			'callback' => array(__CLASS__, '_callback_fw_collect_options_enqueue_static'),
 		) );
 
-		foreach ( $collected as &$option ) {
-			if ($option['group'] === 'option') {
-				fw()->backend->option_type($option['option']['type'])->enqueue_static($option['id'], $option['option']);
-			} elseif ($option['group'] === 'container') {
-				fw()->backend->container_type($option['option']['type'])->enqueue_static($option['id'], $option['option']);
-			}
+		unset($collected);
+	}
+
+	/**
+	 * @internal
+	 * @param array $data
+	 */
+	public static function _callback_fw_collect_options_enqueue_static($data) {
+		if ($data['group'] === 'option') {
+			fw()->backend->option_type($data['option']['type'])->enqueue_static($data['id'], $data['option']);
+		} elseif ($data['group'] === 'container') {
+			fw()->backend->container_type($data['option']['type'])->enqueue_static($data['id'], $data['option']);
 		}
 	}
 
@@ -1557,20 +1675,13 @@ final class _FW_Component_Backend {
 		}
 
 		if ( ! isset( $data['id_prefix'] ) ) {
-			$data['id_prefix'] = FW_Option_Type::get_default_id_prefix();
+			$data['id_prefix'] = $this->get_options_id_attr_prefix();
 		}
 
-		if (
-			isset($option['option_handler']) &&
-			$option['option_handler'] instanceof FW_Option_Handler
-		) {
-
-			/*
-			 * if the option has a custom option_handler
-			 * then the handler provides the option's value
-			 */
-			$data['value'] = $option['option_handler']->get_option_value($id, $option, $data);
-		}
+		$data = apply_filters(
+			'fw:backend:option-render:data',
+			$data
+		);
 
 		$data = apply_filters(
 			'fw:backend:option-render:data',
@@ -1767,8 +1878,8 @@ final class _FW_Component_Backend {
 	 * @return FW_Option_Type|FW_Option_Type_Undefined
 	 */
 	public function option_type( $option_type ) {
-		if ( is_array( $this->option_types_pending_registration ) ) {
-			// This method is called first time
+		if ( is_array( $this->option_types_pending_registration ) ) { // This method is called for the first time
+			require_once dirname(__FILE__) .'/../extends/class-fw-option-type.php';
 
 			do_action('fw_option_types_init');
 
@@ -1814,8 +1925,8 @@ final class _FW_Component_Backend {
 	 * @return FW_Container_Type|FW_Container_Type_Undefined
 	 */
 	public function container_type( $container_type ) {
-		if ( is_array( $this->container_types_pending_registration ) ) {
-			// This method is called first time
+		if ( is_array( $this->container_types_pending_registration ) ) { // This method is called for the first time
+			require_once dirname(__FILE__) .'/../extends/class-fw-container-type.php';
 
 			do_action('fw_container_types_init');
 
@@ -1885,9 +1996,9 @@ final class _FW_Component_Backend {
 			 * not existing container types will throw notices.
 			 * To prevent that, extract and send it only options (without containers)
 			 */
-			fw_collect_options($options_for_enqueue, $customizer_options);
-
-			fw()->backend->enqueue_options_static($options_for_enqueue);
+			fw_collect_options($options_for_enqueue, $customizer_options, array(
+				'callback' => array(__CLASS__, '_callback_fw_collect_options_enqueue_static'),
+			));
 
 			unset($options_for_enqueue, $customizer_options);
 		}
@@ -1895,7 +2006,7 @@ final class _FW_Component_Backend {
 		wp_enqueue_script(
 			'fw-backend-customizer',
 			fw_get_framework_directory_uri( '/static/js/backend-customizer.js' ),
-			array( 'jquery', 'fw-events', 'backbone' ),
+			array( 'jquery', 'fw-events', 'backbone', 'fw-backend-options' ),
 			fw()->manifest->get_version(),
 			true
 		);
@@ -2000,10 +2111,10 @@ final class _FW_Component_Backend {
 					unset($children_data);
 					break;
 				case 'option':
-					$setting_id = FW_Option_Type::get_default_name_prefix() .'['. $opt['id'] .']';
+					$setting_id = $this->get_options_name_attr_prefix() .'['. $opt['id'] .']';
 
 					{
-						$args = array(
+						$args_control = array(
 							'label' => empty($opt['option']['label'])
 								? fw_id_to_title($opt['id'])
 								: $opt['option']['label'],
@@ -2014,19 +2125,20 @@ final class _FW_Component_Backend {
 						);
 
 						if (isset($opt['option']['wp-customizer-args']) && is_array($opt['option']['wp-customizer-args'])) {
-							$args = array_merge($opt['option']['wp-customizer-args'], $args);
+							$args_control = array_merge($opt['option']['wp-customizer-args'], $args_control);
 						}
 
 						if ($parent_data) {
 							if ($parent_data['customizer_type'] === 'section') {
-								$args['section'] = $parent_data['id'];
+								$args_control['section'] = $parent_data['id'];
 							} else {
 								trigger_error('Invalid control parent: '. $parent_data['customizer_type'], E_USER_WARNING);
 								break;
 							}
 						} else { // the option is not placed in a section, create a section automatically
-							$args['section'] = 'fw_option_auto_section_'. $opt['id'];
-							$wp_customize->add_section($args['section'], array(
+							$args_control['section'] = 'fw_option_auto_section_'. $opt['id'];
+
+							$wp_customize->add_section($args_control['section'], array(
 								'title' => empty($opt['option']['label'])
 									? fw_id_to_title($opt['id'])
 									: $opt['option']['label'],
@@ -2042,22 +2154,33 @@ final class _FW_Component_Backend {
 						require_once fw_get_framework_directory('/includes/customizer/class--fw-customizer-control-option-wrapper.php');
 					}
 
-					$wp_customize->add_setting(
-						new _FW_Customizer_Setting_Option(
-							$wp_customize,
-							$setting_id,
-							array(
-								'default' => fw()->backend->option_type($opt['option']['type'])->get_value_from_input($opt['option'], null),
-								'fw_option' => $opt['option'],
-							)
-						)
-					);
+					{
+						$args_setting = array(
+							'default' => fw()->backend->option_type($opt['option']['type'])->get_value_from_input($opt['option'], null),
+							'fw_option' => $opt['option'],
+						);
 
+						if (isset($opt['option']['wp-customizer-setting-args']) && is_array($opt['option']['wp-customizer-setting-args'])) {
+							$args_setting = array_merge($opt['option']['wp-customizer-setting-args'], $args_setting);
+						}
+
+						$wp_customize->add_setting(
+							new _FW_Customizer_Setting_Option(
+								$wp_customize,
+								$setting_id,
+								$args_setting
+							)
+						);
+
+						unset($args_setting);
+					}
+
+					// control must be registered after setting
 					$wp_customize->add_control(
 						new _FW_Customizer_Control_Option_Wrapper(
 							$wp_customize,
 							$opt['id'],
-							$args
+							$args_control
 						)
 					);
 					break;

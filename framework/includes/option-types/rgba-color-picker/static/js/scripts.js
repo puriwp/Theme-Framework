@@ -35,7 +35,7 @@ jQuery(function($){
 	var helpers = {
 		optionClass: 'fw-option-type-rgba-color-picker',
 		eventNamespace: '.fwOptionTypeRgbaColorPicker',
-		hexColorRegex: /^#[a-f0-9]{3}([a-f0-9]{3})?$/,
+		hexColorRegex: /^#[a-f0-9]{3}([a-f0-9]{3})?$/i,
 		localized: window._fw_option_type_rgba_color_picker_localized,
 		increment: 0,
 		isColorDark: function(rgbaColor) {
@@ -96,6 +96,10 @@ jQuery(function($){
 			 * Do not initialize all pickers on the page, for performance reasons, maybe none of them will be opened
 			 */
 			$input.one('focus', function(){
+				if (!$.trim($input.val()).length) { // If the input value is empty, there a glitches with opacity slider
+					$input.val('rgba(255,255,255,1)');
+				}
+
 				$input.iris({
 					palettes: JSON.parse($input.attr('data-palettes')),
 					defaultColor: false,

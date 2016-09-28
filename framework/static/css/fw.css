@@ -2698,6 +2698,42 @@ a.fw-wp-link:hover {
 
 /* end: fwGrowIn */
 
+/* fwDropIn */
+
+@-webkit-keyframes fwDropIn {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale(1.3);
+		-ms-transform: scale(1.3);
+		transform: scale(1.3);
+	}
+
+	100% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		-ms-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+@keyframes fwDropIn {
+	0% {
+		opacity: 0;
+		-webkit-transform: scale(1.3);
+		-ms-transform: scale(1.3);
+		transform: scale(1.3);
+	}
+
+	100% {
+		opacity: 1;
+		-webkit-transform: scale(1);
+		-ms-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+/* end: fwDropIn */
+
 /* fwGrowOut */
 
 @-webkit-keyframes fwGrowOut {
@@ -2876,20 +2912,28 @@ a.fw-wp-link:hover {
 
 /* modal */
 
-body > div:not(.fw-modal) > .media-modal {
-	z-index: 161001;
+body > .fw-modal > .media-modal {
+	z-index: 100001;
 }
 
-body > div:not(.fw-modal) > .media-modal-backdrop {
-	z-index: 161000;
+body > .fw-modal > .media-modal-backdrop {
+	z-index: 100000; /* bigger than #wpadminbar */
 }
 
-body.wp-customizer > div:not(.fw-modal) > .media-modal {
-	z-index: 561001; /* bigger than .wp-customizer .media-modal */
+body.wp-customizer > div.fw-modal > .media-modal {
+	z-index: 500002;
+}
+
+body.wp-customizer > div.fw-modal > .media-modal-backdrop {
+	z-index: 500001; /* bigger than .wp-full-overlay */
+}
+
+body.wp-customizer > div:not(.fw-modal) > .media-modal { /* media upload modal */
+	z-index: 561001;
 }
 
 body.wp-customizer > div:not(.fw-modal) > .media-modal-backdrop {
-	z-index: 561000;
+	z-index: 561000; /* bigger than .wp-customizer .media-modal */
 }
 
 .fw-modal .media-modal-close:focus {
@@ -3007,12 +3051,46 @@ body.wp-customizer > div:not(.fw-modal) > .media-modal-backdrop {
 	max-height: 800px;
 }
 
+.fw-sole-modal.fw-sole-confirm-modal {
+	text-align: center;
+}
+
+.fw-sole-modal.fw-sole-confirm-modal .fw-sole-confirm-button:not(:last-child) {
+	margin-right: 10px;
+}
+
+.fw-sole-modal.fw-sole-confirm-modal .fw-sole-confirm-button {
+	min-width: 65px;
+}
+
+.fw-sole-modal.fw-sole-confirm-modal span.dashicons {
+	font-size: 60px;
+	width: 60px;
+	height: 60px;
+	margin-top: 10px;
+}
+
+.fw-sole-modal.fw-sole-confirm-modal.fw-sole-confirm-warning span.dashicons {
+	color: #e04139;
+}
+
+.fw-sole-modal.fw-sole-confirm-modal.fw-sole-confirm-info span.dashicons {
+	color: #5dab20;
+}
+
 /* end: sizes */
 
 /* tabs fixes */
 
 .fw-modal .fw-options-tabs-first-level > .fw-options-tabs-list {
-	padding-top: 20px;
+	padding: 20px 10px 0 10px;
+}
+
+.fw-modal .fw-options-tabs-wrapper > .fw-options-tabs-contents > .fw-inner > .fw-options-tab > .fw-options-tabs-wrapper > .fw-options-tabs-list {
+	padding-left: 25px;
+}
+body.rtl .fw-modal .fw-options-tabs-wrapper > .fw-options-tabs-contents > .fw-inner > .fw-options-tab > .fw-options-tabs-wrapper > .fw-options-tabs-list {
+	padding-right: 25px;
 }
 
 .fw-modal .fw-options-tabs-wrapper > .fw-options-tabs-contents > .fw-inner > .fw-options-tab > .fw-options-tabs-wrapper > .fw-options-tabs-list {
@@ -3105,37 +3183,37 @@ body.rtl .fw-modal .media-frame-content > form .fw-options-tabs-contents .fw-opt
 
 /* SoleModal */
 
-.fw-sole-modal > .media-modal {
+body > .fw-sole-modal > .media-modal {
 	z-index: 500000;
 	margin: auto;
 }
 
-.fw-sole-modal > .media-modal-backdrop {
+body > .fw-sole-modal > .media-modal-backdrop {
 	z-index: 499999;
 	background-color: transparent;
 }
 
-.fw-sole-modal > .media-modal > .media-modal-content {
+body > .fw-sole-modal > .media-modal > .media-modal-content {
 	-webkit-box-shadow: 0 1px 10px rgba(0,0,0,.25);
 	box-shadow: 0 0px 10px rgba(0,0,0,.25);
 }
 
-.fw-sole-modal .fw-sole-modal-content h2 {
+body > .fw-sole-modal .fw-sole-modal-content h2 {
 	font-size: 22px;
 	line-height: initial;
 }
 
-.fw-sole-modal .fw-sole-modal-content h2:first-child {
+body > .fw-sole-modal .fw-sole-modal-content h2:first-child {
 	margin-top: 0;
 }
 
-.fw-sole-modal .fw-sole-modal-content h2 img.wp-spinner {
+body > .fw-sole-modal .fw-sole-modal-content h2 img.wp-spinner {
 	vertical-align: baseline;
 	position: relative;
 	top: 2px;
 }
 
-.fw-sole-modal .fw-sole-modal-content p {
+body > .fw-sole-modal .fw-sole-modal-content p {
 	font-size: 13px;
 	line-height: 19px;
 }

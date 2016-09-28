@@ -92,23 +92,8 @@ final class _FW_Component_Extensions
 	{
 		require dirname(__FILE__) .'/extensions/class-fw-extension-default.php';
 
-		if (
-			/**
-			 * Do not load in frontend because it has no functionality that can be useful in frontend
-			 */
-			is_admin()
-			||
-			/**
-			 * While in cron request (on auto-update), is_admin() is false
-			 * but we need the actions that moves extensions to a tmp dir then back, on plugin update
-			 * todo: maybe move those actions here in this class?
-			 */
-			defined( 'DOING_CRON' )
-		) {
-			require dirname(__FILE__) .'/extensions/manager/class--fw-extensions-manager.php';
-
-			$this->manager = new _FW_Extensions_Manager();
-		}
+		require dirname(__FILE__) .'/extensions/manager/class--fw-extensions-manager.php';
+		$this->manager = new _FW_Extensions_Manager();
 	}
 
 	/**
@@ -147,7 +132,13 @@ final class _FW_Component_Extensions
 			$data['parent'] = null;
 		}
 
-		$dirs = glob($data['path'] .'/*', GLOB_ONLYDIR);
+		try {
+			$dirs = FW_File_Cache::get($cache_key = 'core:ext:load:glob:'. $data['path']);
+		} catch (FW_File_Cache_Not_Found_Exception $e) {
+			$dirs = glob($data['path'] .'/*', GLOB_ONLYDIR);
+
+			FW_File_Cache::set($cache_key, $dirs);
+		}
 
 		if (empty($dirs)) {
 			return;
@@ -306,7 +297,15 @@ final class _FW_Component_Extensions
 		}
 
 		foreach ($paths as $path => $uri) {
-			if ($files = glob($path . $dir_rel_path .'/*.php')) {
+			try {
+				$files = FW_File_Cache::get($cache_key = 'core:ext:glob:inc-all-php:'. $extension->get_name() .':'. $path);
+			} catch (FW_File_Cache_Not_Found_Exception $e) {
+				$files = glob($path . $dir_rel_path .'/*.php');
+
+				FW_File_Cache::set($cache_key, $files);
+			}
+
+			if ($files) {
 				foreach ($files as $dir_file_path) {
 					fw_include_file_isolated($dir_file_path);
 				}

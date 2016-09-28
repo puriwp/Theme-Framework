@@ -17,19 +17,25 @@ class FW_Option_Type_Popup extends FW_Option_Type {
 	 * {@inheritdoc}
 	 */
 	protected function _enqueue_static( $id, $option, $data ) {
-		wp_enqueue_style(
-			'fw-option-' . $this->get_type(),
-			fw_get_framework_directory_uri( '/includes/option-types/' . $this->get_type() . '/static/css/styles.css' ),
-			array( 'fw' )
-		);
+		static $enqueue = true;
 
-		wp_enqueue_script(
-			'fw-option-' . $this->get_type(),
-			fw_get_framework_directory_uri( '/includes/option-types/' . $this->get_type() . '/static/js/' . $this->get_type() . '.js' ),
-			array( 'underscore', 'fw-events', 'jquery-ui-sortable', 'fw' ),
-			false,
-			true
-		);
+		if ($enqueue) {
+			wp_enqueue_style(
+				'fw-option-' . $this->get_type(),
+				fw_get_framework_directory_uri( '/includes/option-types/' . $this->get_type() . '/static/css/styles.css' ),
+				array( 'fw' )
+			);
+
+			wp_enqueue_script(
+				'fw-option-' . $this->get_type(),
+				fw_get_framework_directory_uri( '/includes/option-types/' . $this->get_type() . '/static/js/' . $this->get_type() . '.js' ),
+				array( 'underscore', 'fw-events', 'jquery-ui-sortable', 'fw' ),
+				false,
+				true
+			);
+
+			$enqueue = false;
+		}
 
 		fw()->backend->enqueue_options_static( $option['popup-options'] );
 
@@ -53,7 +59,8 @@ class FW_Option_Type_Popup extends FW_Option_Type {
 			'title'   => ( isset( $option['popup-title'] ) ) ? $option['popup-title'] : ( string ) $option['label'],
 			'options' => $this->transform_options( $option['popup-options'] ),
 			'button'  => $option['button'],
-			'size'    => $option['size']
+			'size'    => $option['size'],
+			'custom-events' => $option['custom-events']
 		) );
 
 		if ( ! empty( $data['value'] ) ) {
@@ -115,6 +122,11 @@ class FW_Option_Type_Popup extends FW_Option_Type {
 				return array();
 			}
 
+			/**
+			 * $option['value'] has DB format (not $input_value HTML format)
+			 * so it can't be used as second parameter in fw_get_options_values_from_input()
+			 * thus we need to move each option value in option array default values
+			 */
 			$popup_options = array();
 			foreach (fw_extract_only_options($option['popup-options']) as $popup_option_id => $popup_option) {
 				if (isset($option['value'][$popup_option_id])) {
@@ -128,9 +140,9 @@ class FW_Option_Type_Popup extends FW_Option_Type {
 			/**
 			 * Don't decode if we have already an array
 			 */
-			$values = $input_value;
+			$values = fw_get_options_values_from_input($option['popup-options'], $input_value);
 		} else {
-			$values = json_decode( $input_value, true );
+			$values = fw_get_options_values_from_input($option['popup-options'], json_decode( $input_value, true ));
 		}
 
 		return $values;
@@ -173,7 +185,13 @@ class FW_Option_Type_Popup extends FW_Option_Type {
 			/*
 			 * Array of default values for the popup options
 			 */
-			'value'         => array()
+			'value'         => array(),
+
+			'custom-events' => array(
+				'open' => false,
+				'close' => false,
+				'render' => false
+			)
 		);
 	}
 

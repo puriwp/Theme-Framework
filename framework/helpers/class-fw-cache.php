@@ -2,7 +2,6 @@
 
 /**
  * Memory Cache
- * Only for internal usage in other functions/methods, because it throws exceptions
  *
  * Recommended usage example:
  *  try {
@@ -36,11 +35,6 @@ class FW_Cache
 	protected static $min_free_memory = 10485760;
 
 	/**
-	 * Max allowed memory for PHP
-	 */
-	protected static $memory_limit = null;
-
-	/**
 	 * A special value that is used to detect if value was found in cache
 	 * We can't use null|false because these can be values set by user and we can't treat them as not existing values
 	 */
@@ -69,21 +63,14 @@ class FW_Cache
 
 	protected static function get_memory_limit()
 	{
-		if (self::$memory_limit === null) {
-			$memory_limit = ini_get('memory_limit');
+		$memory_limit = ini_get('memory_limit');
 
-			if (preg_match('/^(\d+)(.)$/', $memory_limit, $matches)) {
-				if ($matches[2] == 'M') {
-					$memory_limit = $matches[1] * 1024 * 1024; // nnn_m -> nnn MB
-				} else if ($matches[2] == 'K') {
-					$memory_limit = $matches[1] * 1024; // nnn_k -> nnn KB
-				}
-			}
-
-			self::$memory_limit = $memory_limit;
+		switch (substr($memory_limit, -1)) {
+			case 'M': return intval($memory_limit) * 1024 * 1024;
+			case 'K': return intval($memory_limit) * 1024;
+			case 'G': return intval($memory_limit) * 1024 * 1024 * 1024;
+			default:  return intval($memory_limit) * 1024 * 1024;
 		}
-
-		return self::$memory_limit;
 	}
 
 	protected static function memory_exceeded()
@@ -163,7 +150,19 @@ class FW_Cache
 			'clean_user_cache' => true,
 			'process_text_diff_html' => true,
 		) as $hook => $tmp) {
-			add_filter($hook, array(__CLASS__, 'free_memory'), 9999);
+			add_filter($hook, array(__CLASS__, 'free_memory'), 1);
+		}
+
+		/**
+		 * Flush the cache when something major is changed (files or db values)
+		 */
+		foreach (array(
+			'switch_blog' => true,
+			'upgrader_post_install' => true,
+			'upgrader_process_complete' => true,
+			'switch_theme' => true,
+		) as $hook => $tmp) {
+			add_filter($hook, array(__CLASS__, 'clear'), 1);
 		}
 	}
 
@@ -177,6 +176,10 @@ class FW_Cache
 		return true;
 	}
 
+	/**
+	 * @param mixed $dummy
+	 * @return mixed
+	 */
 	public static function free_memory($dummy = null)
 	{
 		while (self::memory_exceeded() && !empty(self::$cache)) {
@@ -190,7 +193,7 @@ class FW_Cache
 		++self::$freed;
 
 		/**
-		 * This method is used add_filter() so to not break anything return filter value
+		 * This method is used in add_filter() so to not break anything return filter value
 		 */
 		return $dummy;
 	}
@@ -262,10 +265,38 @@ class FW_Cache
 
 	/**
 	 * Empty the cache
+	 * @param mixed $dummy When method is used in add_filter()
+	 * @return mixed
 	 */
-	public static function clear()
+	public static function clear($dummy = null)
 	{
 		self::$cache = array();
+
+		/**
+		 * This method is used in add_filter() so to not break anything return filter value
+		 */
+		return $dummy;
+	}
+
+	/**
+	 * Debug information
+	 * <?php add_action('admin_footer', function(){ FW_Cache::stats(); });
+	 * @since 2.4.17
+	 */
+	public static function stats() {
+		echo '<div style="z-index: 10000; position: relative; background: #fff; padding: 15px;">';
+		echo '<p>';
+		echo '<strong>Cache Hits:</strong> '. self::$hits .'<br />';
+		echo '<strong>Cache Misses:</strong> '. self::$misses .'<br />';
+		echo '<strong>Cache Freed:</strong> '. self::$freed .'<br />';
+		echo '<strong>PHP Memory Peak Usage:</strong> '. fw_human_bytes(memory_get_peak_usage(false)) .'<br />';
+		echo '</p>';
+		echo '<ul>';
+		foreach (self::$cache as $group => $cache) {
+			echo "<li><strong>Group:</strong> $group - ( " . number_format( strlen( serialize( $cache ) ) / KB_IN_BYTES, 2 ) . 'k )</li>';
+		}
+		echo '</ul>';
+		echo '</div>';
 	}
 
 	/**

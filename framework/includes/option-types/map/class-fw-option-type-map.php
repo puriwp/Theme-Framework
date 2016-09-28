@@ -6,15 +6,6 @@
  * Map
  */
 class FW_Option_Type_Map extends FW_Option_Type {
-	private $language = '';
-
-	/**
-	 * @internal
-	 */
-	public function _init() {
-		$this->language = substr( get_locale(), 0, 2 );
-	}
-
 	public function get_type() {
 		return 'map';
 	}
@@ -30,18 +21,23 @@ class FW_Option_Type_Map extends FW_Option_Type {
 		);
 
 		wp_enqueue_script(
-			'google-maps-api-v3',
-			'https://maps.googleapis.com/maps/api/js?v=3.15&sensor=false&libraries=places&language=' . $this->language,
-			array(),
-			'3.15',
-			true
-		);
-		wp_enqueue_script(
-			$this->get_type() . '-styles',
+			$this->get_type() . '-scripts',
 			fw_get_framework_directory_uri( '/includes/option-types/' . $this->get_type() . '/static/js/scripts.js' ),
 			array( 'jquery', 'jquery-ui-widget', 'fw-events', 'underscore', 'jquery-ui-autocomplete' ),
 			'1.0',
 			true
+		);
+		wp_localize_script(
+			$this->get_type() . '-scripts',
+			'_fw_option_type_map',
+			array(
+				'google_maps_js_uri' => 'https://maps.googleapis.com/maps/api/js?'. http_build_query(array(
+					'v' => '3.23',
+					'libraries' => 'places',
+					'language' => substr( get_locale(), 0, 2 ),
+					'key' => self::api_key(),
+				))
+			)
 		);
 	}
 
@@ -101,6 +97,10 @@ class FW_Option_Type_Map extends FW_Option_Type {
 				)
 			)
 		);
+	}
+
+	public static function api_key() {
+		return FW_Option_Type_GMap_Key::get_key();
 	}
 }
 

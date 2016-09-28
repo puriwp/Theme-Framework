@@ -58,7 +58,7 @@ Included on pages where backend options are rendered
 
 .fw-options-tabs-wrapper > .fw-options-tabs-list {
 	border-bottom: 1px solid #CCC;
-	padding: 0 10px;
+	/*padding: 0 10px;*/
 }
 
 .fw-options-tabs-wrapper > .fw-options-tabs-list ul,
@@ -69,8 +69,8 @@ Included on pages where backend options are rendered
 
 .fw-options-tabs-wrapper > .fw-options-tabs-list ul li {
 	float: left;
-	margin-right: 6px;
 }
+
 body.rtl .fw-options-tabs-wrapper > .fw-options-tabs-list ul li {
 	float: right;
 	margin-right: 0px;
@@ -79,7 +79,7 @@ body.rtl .fw-options-tabs-wrapper > .fw-options-tabs-list ul li {
 
 .fw-options-tabs-wrapper > .fw-options-tabs-list ul li a.nav-tab {
 	padding: 6px 12px;
-	font-weight: 700;
+	font-weight: 600;
 	font-size: 15px;
 	line-height: 24px;
 	text-decoration: none;
@@ -95,7 +95,7 @@ body.rtl .fw-options-tabs-wrapper > .fw-options-tabs-list ul li {
 }
 
 .postbox .fw-options-tabs-wrapper > .fw-options-tabs-list {
-	padding-top: 10px;
+	padding: 10px 10px 0 10px;
 }
 
 .postbox .fw-options-tabs-wrapper > .fw-options-tabs-list ul li a.nav-tab {
@@ -866,6 +866,7 @@ body.rtl .fw-postbox .handlediv:before {
 .fw-postbox .toggle-indicator {
 	display: none; /* fixes https://github.com/ThemeFuse/Unyson/issues/1261 */
 }
+
 /* end copy from: .js .meta-box-sortables .postbox .handlediv */
 
 /* end: Boxes */
@@ -876,7 +877,12 @@ body.rtl .fw-postbox .handlediv:before {
 .fw-backend-option-design-default {
 	position: relative;
 	padding: 24px 27px 21px;
+	border: 0px solid #eeeeee;
 	border-bottom: 1px solid #eeeeee;
+}
+
+.fw-backend-option-design-default.fw-bottom-border-hidden {
+	border-bottom-color: transparent;
 }
 
 .fw-force-xs .fw-backend-option-design-default {
@@ -972,15 +978,15 @@ body.rtl .fw-backend-option-design-default > .fw-backend-option-desc > .fw-inner
 
 /* Options Groups */
 
-.fw-backend-options-group {
+.fw-backend-options-group:not(.show-borders) {
 	border-bottom: 1px solid #eeeeee;
 }
 
-.fw-backend-options-group > .fw-backend-option {
+.fw-backend-options-group:not(.show-borders) > .fw-backend-option {
 	border-bottom-width: 0;
 }
 
-.fw-backend-options-group > .fw-backend-option:not(:last-child) {
+.fw-backend-options-group:not(.show-borders) > .fw-backend-option:not(:last-child) {
 	padding-bottom: 0;
 }
 
@@ -1099,7 +1105,6 @@ body.rtl .fw-backend-option-design-default.with-help > .fw-backend-option-label 
 		padding-right: 0;
 		padding-left: 26px;
 	}
-
 	.fw-force-xs .fw-backend-option-design-default.with-help > .fw-backend-option-input > .fw-inner {
 		padding-right: 0;
 	}
@@ -1138,14 +1143,13 @@ body.rtl .fw-backend-option-design-default.with-help > .fw-backend-option-label 
 	#edittag > .fw-backend-option > .fw-backend-option-input,
 	#edittag > .fw-backend-options-group > .fw-backend-option > .fw-backend-option-input,
 	#edittag > .fw-backend-option-type-multi .fw-backend-option > .fw-backend-option-input,
-	#edittag > .fw-backend-option-type-multi-picker .fw-backend-option > .fw-backend-option-input{
+	#edittag > .fw-backend-option-type-multi-picker .fw-backend-option > .fw-backend-option-input {
 		width: calc(100% - 219px);
 	}
 
 	#edittag > .fw-backend-option > .fw-backend-option-desc,
 	#edittag > .fw-backend-options-group > .fw-backend-option > .fw-backend-option-desc,
-	#edittag > .fw-backend-option-type-multi .fw-backend-option > .fw-backend-option-desc,
-	#edittag > .fw-backend-option-type-multi-picker .fw-backend-option > .fw-backend-option-desc {
+	#edittag > .fw-backend-option-type-multi .fw-backend-option > .fw-backend-option-desc {
 		margin-left: 219px;
 	}
 }
@@ -1169,3 +1173,95 @@ body.rtl .fw-backend-option-design-default.with-help > .fw-backend-option-label 
 }
 
 /* end: Edit Term page */
+
+/* Add Term page */
+
+#addtag .fw-backend-option {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+#addtag .fw-postbox .fw-backend-option {
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+/* end: Add Term page */
+
+/* modal fix https://github.com/ThemeFuse/Unyson/issues/1353 */
+
+@media (min-width: 1200px) {
+	.media-frame-content .fw-backend-option > .fw-backend-option-label.fw-col-lg-2 {
+		width: 25%;
+	}
+
+	.media-frame-content .fw-backend-option > .fw-backend-option-input.fw-col-lg-10 {
+		width: 75%;
+	}
+
+	.media-frame-content .fw-backend-option > .fw-backend-option-desc.fw-col-lg-offset-2 {
+		margin-left: 25%;
+		width: 75%;
+	}
+}
+
+/* end: modal fix */
+
+/* Add Selectize support for all selects with fw-selectize class */
+.fw-selectize.selectize-control.single .selectize-input {
+	background: none;
+	margin: 1px;
+	vertical-align: middle;
+	border: 1px solid #dddddd;
+	color: #333333;
+	height: 28px;
+	line-height: 27px;
+	font-size: 14px;
+	padding: 0 6px;
+
+	-webkit-border-radius: 0;
+	   -moz-border-radius: 0;
+	   		border-radius: 0;
+
+	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .07);
+	   -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .07);
+   			box-shadow: inset 0 1px 2px rgba(0, 0, 0, .07);
+}
+
+.fw-selectize.selectize-control.single .selectize-input:before {
+	height: 0;
+	background: none;
+}
+
+.fw-selectize.selectize-control.single .selectize-input:after,
+.fw-selectize.selectize-control.single .selectize-input.dropdown-active:after {
+	right: 8px;
+	margin-top: -2px;
+	border-width: 6px 3px 0 3px;
+	border-color: #000000 transparent transparent transparent;
+}
+
+.fw-selectize.selectize-control .selectize-dropdown {
+	margin: 0 1px;
+	border: none;
+	top: 33px !important;
+}
+
+.fw-selectize.selectize-control .selectize-dropdown .selectize-dropdown-content {
+	border: 1px solid #ddd;
+	max-height: 204px;
+}
+
+.fw-selectize.selectize-control .selectize-dropdown .selectize-dropdown-content div {
+	height: 30px;
+	background-color: #fff;
+	cursor: pointer;
+	border-bottom: 1px solid #ddd;
+	line-height: 30px;
+}
+
+.fw-selectize.selectize-control .selectize-dropdown .selectize-dropdown-content div:hover {
+	background-color: #f0f0f0;
+}
+
+/* end: Selectize */

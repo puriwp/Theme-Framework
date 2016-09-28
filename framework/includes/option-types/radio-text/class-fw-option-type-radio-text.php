@@ -104,6 +104,7 @@ class FW_Option_Type_Radio_Text extends FW_Option_Type
 
 			$input_value = $tmp_array;
 		}
+
 		$selected = fw()->backend->option_type( 'radio' )->get_value_from_input( array(
 				'value' => $option['value'],
 				'choices' => $option['choices']

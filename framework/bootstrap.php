@@ -24,6 +24,13 @@ if (defined('FW')) {
 
 		include $fw_dir .'/bootstrap-helpers.php';
 
+		// these are required when fw() is executed below
+		{
+			require $fw_dir .'/helpers/class-fw-dumper.php';
+			require $fw_dir .'/helpers/general.php';
+			require $fw_dir .'/helpers/class-fw-cache.php';
+		}
+
 		/**
 		 * Load core
 		 */
@@ -40,15 +47,18 @@ if (defined('FW')) {
 			array(
 				'meta',
 				'class-fw-access-key',
-				'class-fw-dumper',
-				'general',
+				// 'class-fw-dumper', // included below
+				// 'general', // included below
 				'class-fw-wp-filesystem',
-				'class-fw-cache',
+				// 'class-fw-cache', // included below
+				'class-fw-file-cache',
 				'class-fw-form',
 				'class-fw-request',
 				'class-fw-session',
 				'class-fw-wp-option',
 				'class-fw-wp-meta',
+				'class-fw-db-options-model',
+				'fw-storage',
 				'database',
 				'class-fw-flash-messages',
 				'class-fw-resize',

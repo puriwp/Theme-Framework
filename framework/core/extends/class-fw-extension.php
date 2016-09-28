@@ -152,14 +152,25 @@ abstract class FW_Extension
 	 */
 	final public function locate_path($rel_path)
 	{
-		$locations = $this->customizations_locations;
-		$locations[$this->get_path()] = $this->get_uri();
+		try {
+			return FW_File_Cache::get($cache_key = 'ext:'. $this->get_name() .':path:'. $rel_path);
+		} catch (FW_File_Cache_Not_Found_Exception $e) {
+			$result = false;
+			$locations = $this->customizations_locations;
+			$locations[$this->get_path()] = $this->get_uri();
 
-		foreach ($locations as $path => $uri) {
-			if (file_exists($path . $rel_path)) {
-				return $path . $rel_path;
+			foreach ($locations as $path => $uri) {
+				if (file_exists($path . $rel_path)) {
+					$result = $path . $rel_path;
+					break;
+				}
 			}
+
+			FW_File_Cache::set($cache_key, $result);
+
+			return $result;
 		}
+
 
 		return false;
 	}
@@ -170,16 +181,24 @@ abstract class FW_Extension
 	 */
 	final public function locate_URI($rel_path)
 	{
-		$locations = $this->customizations_locations;
-		$locations[$this->get_path()] = $this->get_uri();
+		try {
+			return FW_File_Cache::get($cache_key = 'ext:'. $this->get_name() .':uri:'. $rel_path);
+		} catch (FW_File_Cache_Not_Found_Exception $e) {
+			$result = false;
+			$locations = $this->customizations_locations;
+			$locations[$this->get_path()] = $this->get_uri();
 
-		foreach ($locations as $path => $uri) {
-			if (file_exists($path . $rel_path)) {
-				return $uri . $rel_path;
+			foreach ($locations as $path => $uri) {
+				if (file_exists($path . $rel_path)) {
+					$result = $uri . $rel_path;
+					break;
+				}
 			}
-		}
 
-		return false;
+			FW_File_Cache::set($cache_key, $result);
+
+			return $result;
+		}
 	}
 
 	/**
@@ -324,35 +343,32 @@ abstract class FW_Extension
 	 */
 	final public function get_options($name, array $variables = array())
 	{
-		$path = $this->locate_path('/options/'. $name .'.php');
+		try {
+			return FW_Cache::get($cache_key = $this->get_cache_key('/options/'. $name));
+		} catch (FW_Cache_Not_Found_Exception $e) {
+			if ($path = $this->locate_path('/options/'. $name .'.php')) {
+				$variables = fw_get_variables_from_file($path, array('options' => array()), $variables);
+			} else {
+				$variables = array('options' => array());
+			}
 
-		if (!$path) {
-			return array();
+			FW_Cache::set($cache_key, $variables['options']);
+
+			return $variables['options'];
 		}
-
-		$variables = fw_get_variables_from_file($path, array('options' => array()), $variables);
-
-		return $variables['options'];
 	}
 
 	final public function get_settings_options()
 	{
-		$cache_key = $this->get_cache_key() .'/settings_options';
-
 		try {
-			return FW_Cache::get($cache_key);
+			return FW_Cache::get($cache_key = $this->get_cache_key('/settings_options'));
 		} catch (FW_Cache_Not_Found_Exception $e) {
-			$path = $this->get_path('/settings-options.php');
-
-			if (!file_exists($path)) {
-				FW_Cache::set($cache_key, array());
-				return array();
+			if (file_exists($path = $this->get_path('/settings-options.php'))) {
+				$variables = fw_get_variables_from_file($path, array('options' => array()));
+			} else {
+				$variables = array('options' => array());
 			}
-
-			$variables = fw_get_variables_from_file($path, array('options' => array()));
-
 			FW_Cache::set($cache_key, $variables['options']);
-
 			return $variables['options'];
 		}
 	}
@@ -362,7 +378,7 @@ abstract class FW_Extension
 	 *
 	 * @param string|null $option_id
 	 * @param null|mixed $default_value If no option found in the database, this value will be returned
-	 * @param null|bool $get_original_value Original value is that with no translations and other changes
+	 * @param null|bool $get_original_value REMOVED https://github.com/ThemeFuse/Unyson/issues/1676
 	 *
 	 * @return mixed|null
 	 */
@@ -385,7 +401,7 @@ abstract class FW_Extension
 	 *
 	 * @param string|null $multi_key The key of the data you want to get. null - all data
 	 * @param null|mixed $default_value If no option found in the database, this value will be returned
-	 * @param null|bool $get_original_value Original value is that with no translations and other changes
+	 * @param null|bool $get_original_value REMOVED https://github.com/ThemeFuse/Unyson/issues/1676
 	 *
 	 * @return mixed|null
 	 */

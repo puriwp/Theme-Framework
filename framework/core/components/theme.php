@@ -29,7 +29,7 @@ final class _FW_Component_Theme
 	 */
 	public function _init()
 	{
-		add_action('fw_extensions_init', array($this, '_action_fw_extensions_init'));
+		add_action('admin_notices', array($this, '_action_admin_notices'));
 	}
 
 	/**
@@ -46,15 +46,21 @@ final class _FW_Component_Theme
 	 */
 	public function locate_path($rel_path)
 	{
-		if (is_child_theme() && file_exists(fw_get_stylesheet_customizations_directory('/theme'. $rel_path))) {
-			return fw_get_stylesheet_customizations_directory('/theme'. $rel_path);
-		}
+		try {
+			return FW_File_Cache::get($cache_key = 'core:theme:path:'. $rel_path);
+		} catch (FW_File_Cache_Not_Found_Exception $e) {
+			if (is_child_theme() && file_exists(fw_get_stylesheet_customizations_directory('/theme'. $rel_path))) {
+				$path = fw_get_stylesheet_customizations_directory('/theme'. $rel_path);
+			} elseif (file_exists(fw_get_template_customizations_directory('/theme'. $rel_path))) {
+				$path = fw_get_template_customizations_directory('/theme'. $rel_path);
+			} else {
+				$path = false;
+			}
 
-		if (file_exists(fw_get_template_customizations_directory('/theme'. $rel_path))) {
-			return fw_get_template_customizations_directory('/theme'. $rel_path);
-		}
+			FW_File_Cache::set($cache_key, $path);
 
-		return false;
+			return $path;
+		}
 	}
 
 	/**
@@ -192,20 +198,12 @@ final class _FW_Component_Theme
 	/**
 	 * @internal
 	 */
-	public function _action_fw_extensions_init()
+	public function _action_admin_notices()
 	{
-		if (
-			is_admin()
-			&&
-			!fw()->theme->manifest->check_requirements()
-			&&
-		    current_user_can('manage_options')
-		) {
-			FW_Flash_Messages::add(
-				'fw_theme_requirements',
-				__('Theme requirements not met:', 'fw') .' '. fw()->theme->manifest->get_not_met_requirement_text(),
-				'warning'
-			);
+		if ( is_admin() && !fw()->theme->manifest->check_requirements() && current_user_can('manage_options') ) {
+			echo '<div class="notice notice-warning"><p>';
+			echo __('Theme requirements not met:', 'fw') .' '. fw()->theme->manifest->get_not_met_requirement_text();
+			echo '</p></div>';
 		}
 	}
 }

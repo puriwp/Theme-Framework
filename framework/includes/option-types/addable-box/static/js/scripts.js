@@ -85,7 +85,7 @@ jQuery(document).ready(function ($) {
 								methods.makeEventName('control:click'), {
 									controlId: controlId,
 									$control: $control,
-									box: methods.getBoxDataForEvent($control.closest('.box'))
+									box: methods.getBoxDataForEvent($control.closest('.fw-option-box'))
 								}
 							);
 					}
@@ -170,11 +170,14 @@ jQuery(document).ready(function ($) {
 
 				$box.removeClass(titleUpdater.pendingClass);
 
+				var jsonParsedValues = JSON.parse(values) || {};
+
 				$box.find('> .hndle span:not([class])').first().html(
-					this.template(data.template, JSON.parse(values))
+					this.template(data.template, $.extend({}, {o: jsonParsedValues}, jsonParsedValues))
 				);
 
 				delete data;
+				delete jsonParsedValues;
 				this.update();
 				return;
 			}
@@ -198,7 +201,7 @@ jQuery(document).ready(function ($) {
 				var template = '';
 
 				if (response.success) {
-					template = this.template(data.template, response.data.values);
+					template = this.template(data.template, $.extend({}, {o: response.data.values}, response.data.values));
 				} else {
 					template = '[Ajax Error] '+ response.data.message
 				}
@@ -247,7 +250,20 @@ jQuery(document).ready(function ($) {
 				}, 300);
 			}
 
+
 			$boxes.append($newBox);
+
+			// Re-render wp-editor
+			if (
+				window.fwWpEditorRefreshIds
+				&&
+				$newBox.find('.fw-option-type-wp-editor:first').length
+			) {
+				fwWpEditorRefreshIds(
+					$newBox.find('.fw-option-type-wp-editor textarea:first').attr('id'),
+					$newBox
+				);
+			}
 
 			methods.initControls($newBox);
 

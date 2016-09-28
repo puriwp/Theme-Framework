@@ -33,7 +33,12 @@ jQuery(document).ready(function($){
 				.on('click'+ eventNamespace, '> .hndle, > .handlediv', function(e){
 					var $box = $(this).closest('.fw-postbox');
 
-					$box.toggleClass('closed');
+					if ($box.parent().is('.fw-backend-postboxes') && !$box.siblings().length) {
+						// Do not close if only one box https://github.com/ThemeFuse/Unyson/issues/1094
+						$box.removeClass('closed');
+					} else {
+						$box.toggleClass('closed');
+					}
 
 					var isClosed = $box.hasClass('closed');
 
@@ -90,6 +95,13 @@ jQuery(document).ready(function($){
 			initAllTabs = function ($el) {
 				var selector = '.fw-options-tab[' + htmlAttrName + ']', $tabs;
 
+				// fixes https://github.com/ThemeFuse/Unyson/issues/1634
+				$el.each(function(){
+					if ($(this).is(selector)) {
+						initTab($(this));
+					}
+				});
+
 				// initialized tabs can contain tabs, so init recursive until nothing is found
 				while (($tabs = $el.find(selector)).length) {
 					$tabs.each(function(){ initTab($(this)); });
@@ -117,8 +129,10 @@ jQuery(document).ready(function($){
 					.closest('form')
 					.off('submit.fw-tabs')
 					.on('submit.fw-tabs', function () {
-						// All options needs to be present in html to be sent in POST on submit
-						initAllTabs($(this));
+						if (!$(this).hasClass('prevent-all-tabs-init')) {
+							// All options needs to be present in html to be sent in POST on submit
+							initAllTabs($(this));
+						}
 					});
 			} else {
 				$tabs.tabs();
