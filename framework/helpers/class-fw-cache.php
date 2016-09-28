@@ -298,27 +298,6 @@ class FW_Cache
 		echo '</ul>';
 		echo '</div>';
 	}
-
-	/**
-	 * Debug information
-	 * <?php add_action('admin_footer', function(){ FW_Cache::stats(); });
-	 * @since 2.4.17
-	 */
-	public static function stats() {
-		echo '<div style="z-index: 10000; position: relative; background: #fff; padding: 15px;">';
-		echo '<p>';
-		echo '<strong>Cache Hits:</strong> '. self::$hits .'<br />';
-		echo '<strong>Cache Misses:</strong> '. self::$misses .'<br />';
-		echo '<strong>Cache Freed:</strong> '. self::$freed .'<br />';
-		echo '<strong>PHP Memory Peak Usage:</strong> '. fw_human_bytes(memory_get_peak_usage(false)) .'<br />';
-		echo '</p>';
-		echo '<ul>';
-		foreach (self::$cache as $group => $cache) {
-			echo "<li><strong>Group:</strong> $group - ( " . number_format( strlen( serialize( $cache ) ) / KB_IN_BYTES, 2 ) . 'k )</li>';
-		}
-		echo '</ul>';
-		echo '</div>';
-	}
 }
 
 class FW_Cache_Not_Found_Exception extends Exception {}
