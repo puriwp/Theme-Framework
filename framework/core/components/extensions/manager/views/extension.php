@@ -68,7 +68,7 @@ if (!$installed_data && !$is_compatible) {
 						} else {
 							echo $title;
 						}
-					?></h3>
+					?> <small><?php echo $is_active ? fw()->extensions->get($name)->manifest->get_version() : ''; ?></small></h3>
 
 					<?php if ($description): ?>
 						<p class="fw-extensions-list-item-desc"><?php echo esc_html($description); ?></p>
